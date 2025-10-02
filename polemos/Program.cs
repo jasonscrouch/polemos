@@ -1,6 +1,54 @@
-﻿using Microsoft.VisualBasic;
+﻿using System.Linq.Expressions;
+using Microsoft.EntityFrameworkCore;
 
 namespace polemos;
+
+// todo: move to data
+internal class AppContext : DbContext
+{
+    public DbSet<Transformer> Transformers { get; set; }
+
+    protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+    {
+        base.OnConfiguring(optionsBuilder.UseInMemoryDatabase("TestDatabase"));
+    }
+}
+
+// todo: move to core folder
+internal interface ISpecification<T>
+{
+    Expression<Func<T, bool>> Criteria { get; set; }
+}
+
+// todo: move to data folder
+internal interface IRepository<T>
+{
+    T Add(T entity);
+    int SaveChanges();
+}
+
+// todo: move to data folder
+internal class Repository<T> : IRepository<T> where T : class
+{
+    private readonly AppContext _appContext;
+
+    public Repository(AppContext appContext)
+    {
+        _appContext = appContext;
+    }
+
+    public T Add(T entity)
+    {
+        _appContext.Set<T>().Add(entity);
+
+        return entity;
+    }
+
+    public int SaveChanges()
+    {
+        return _appContext.SaveChanges();
+    }
+}
 
 // todo: move this to UI folder
 internal class Options
@@ -92,6 +140,7 @@ public class Program
     private static bool _shouldContinue = true;
 
     private static ITransformerService _transformerService;
+    private static Repository<ITransformer> _transformersRepository;
 
     public static bool IsValidValue(string? value)
     {
@@ -103,6 +152,7 @@ public class Program
     static Program()
     {
         _transformerService = new TransformerService();
+        _transformersRepository = new Repository<ITransformer>(new AppContext());
     }
 
     public static void Main()
@@ -170,7 +220,9 @@ public class Program
                     }
 
                     var transformer = _transformerService.Create(name, faction);
-                    // todo: save to DbContext
+
+                    _transformersRepository.Add(transformer);
+                    _transformersRepository.SaveChanges();
 
                     break;
 
