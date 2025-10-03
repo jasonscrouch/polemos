@@ -1,4 +1,5 @@
 ﻿using System.Linq.Expressions;
+using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 
 namespace polemos;
@@ -10,7 +11,12 @@ internal class AppContext : DbContext
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
-        base.OnConfiguring(optionsBuilder.UseInMemoryDatabase("TestDatabase"));
+        optionsBuilder.UseInMemoryDatabase("TestDatabase");
+    }
+
+    protected override void OnModelCreating(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Transformer>().HasKey(x => x.Id);
     }
 }
 
@@ -43,7 +49,10 @@ internal class TransformerSpecification : SpecificationBase<ITransformer>
 internal interface IRepository<T>
 {
     T Add(T entity);
+    T? Find(int id);
     IEnumerable<T> List();
+    IList<T> List(Expression<Func<T, bool>> predicate);
+    T Remove(T entity);
     int SaveChanges();
 }
 
@@ -64,9 +73,26 @@ internal class Repository<T> : IRepository<T> where T : class
         return entity;
     }
 
+    public T? Find(int id)
+    {
+        return _appContext.Set<T>().Find(new object[] { id });
+    }
+
     public IEnumerable<T> List()
     {
         return _appContext.Set<T>();
+    }
+
+    public IList<T> List(Expression<Func<T, bool>> predicate)
+    {
+        return _appContext.Set<T>().Where(predicate).ToList();
+    }
+
+    public T Remove(T entity)
+    {
+        _appContext.Set<T>().Remove(entity);
+
+        return entity;
     }
 
     public int SaveChanges()
@@ -185,20 +211,8 @@ public class Program
 
     public static bool IsValidInt(string? value)
     {
-        if (string.IsNullOrEmpty(value?.Trim()))
-        {
-            return false;
-        }
-
-        try
-        {
-            Convert.ToInt32(value);
-            return true;
-        }
-        catch
-        {
-            return false;
-        }
+        return !string.IsNullOrEmpty(value?.Trim())
+            && int.TryParse(value, out var result);
     }
 
     // todo: move to UI folder
@@ -210,6 +224,7 @@ public class Program
         }
 
         Console.WriteLine(text);
+        Console.Write(Environment.NewLine);
     }
 
     public static string? Read()
@@ -254,9 +269,11 @@ public class Program
                 option = Read();
             }
 
-            switch (Convert.ToInt32(option))
+            switch (int.Parse(option))
             {
                 case Options.AddCombatant:
+
+                    Write("Add a Transformer");
                     Write("Enter a name:");
                     var name = Read();
 
@@ -291,25 +308,87 @@ public class Program
 
                     // todo: test
                     // list current combatants
+                    Write("Remove Transformer(s)");
                     var transformers = _transformersRepository.List();
 
                     if (!transformers.Any())
                     {
-                        Write("There are no Transformers");
+                        Write("There are no Transformers to remove");
                         break;
                     }
+
+                    Write("Here are the current Transformers:");
 
                     foreach (var transformer in transformers)
                     {
                         Write(transformer.ToString());
                     }
 
-                    // ask which to remove
+                    var shouldContiue = true;
+                    while (shouldContiue)
+                    {
+                        Write("Which Transformer would you like to remove?");
+                        Write($"Select a Transformer(s) by their {nameof(Transformer.Id)}");
+                        Write($"Enter the {nameof(Transformer.Id)} or a list of {nameof(Transformer.Id)}s separated by a comma (e.g., 1, 2, 3):");
+                        var toRemove = Read();
 
-                    // check input as int
+                        while (!IsValidValue(toRemove))
+                        {
+                            Write($"'{toRemove}' is not a valid {nameof(Transformer.Id)} or list of {nameof(Transformer.Id)}s");
+                            Write($"Enter an {nameof(Transformer.Id)} or list of {nameof(Transformer.Id)}s:");
+                            toRemove = Read();
+                        }
 
-                    // remove
-                    // save
+                        // if the string has commas, then split and check each value to see if it is a valid int
+                        var delimiter = ',';
+                        if (toRemove.Contains(delimiter))
+                        {
+                            var ids = toRemove.Split(delimiter);
+
+                            // if any are not valid ints, then alert the user
+                            if (ids.Any(x => !IsValidInt(x)))
+                            {
+                                Write($"Not all of these {nameof(Transformer.Id)}s are valid: '{string.Join(delimiter, ids)}'");
+                            }
+                            else
+                            {
+                                var transformerIds = ids.Select(x => int.Parse(x)).ToList();
+                                var transformersToRemove = _transformersRepository.List(x => transformerIds.Contains(x.Id));
+
+                                var transformersNotFound = transformerIds.Where(x => !transformersToRemove.Any(y => y.Id == x));
+
+                                foreach (var notFound in transformersNotFound)
+                                {
+                                    Write($"Unable to remove Transformer with {nameof(Transformer.Id)} of '{notFound}'");
+                                }
+
+                                foreach (var transformer in transformers)
+                                {
+                                    var id = transformer.Id;
+
+                                    try
+                                    {
+                                        _transformersRepository.Remove(transformer);
+                                        Write($"Transformer with {nameof(Transformer.Id)} '{id}' removed");
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        Write($"Unable to remove Transformer with {nameof(Transformer.Id)} of '{id}'");
+                                        Write($"See exception: '{ex.Message}'");
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // todo: add remove one
+
+                        }
+                        // if the string has no commas, then check the value to see if it a valid int
+
+                        // ensure that we break the while loop
+                    }
+
                     break;
 
                 case Options.SimulateBattle:
