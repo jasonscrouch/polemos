@@ -24,7 +24,7 @@ VS Code or other IDE capable of running .exe files
 # Installation Instructions
 
 1. Pull the project
-2. Open in IDE (e.g., Visual Studio Code)
+2. Open in IDE (e.g., Visual Studio Code with C# Dev Tools Extension)
 3. Run
 
 Usage Instructions
