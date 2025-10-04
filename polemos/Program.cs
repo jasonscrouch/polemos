@@ -49,6 +49,8 @@ internal class TransformerSpecification : SpecificationBase<ITransformer>
 internal interface IRepository<T>
 {
     T Add(T entity);
+
+    // todo: do we need this method?
     T? Find(int id);
     IEnumerable<T> List();
     IList<T> List(Expression<Func<T, bool>> predicate);
@@ -209,10 +211,19 @@ public class Program
         return !string.IsNullOrEmpty(value?.Trim());
     }
 
-    public static bool IsValidInt(string? value)
+    public static bool IsValidInt(string value)
     {
-        return !string.IsNullOrEmpty(value?.Trim())
-            && int.TryParse(value, out var result);
+        return int.TryParse(value, out var result);
+    }
+
+    public static bool IsYesOrNo(string value)
+    {
+        return IsYes(value) || value.Equals("no", StringComparison.OrdinalIgnoreCase);
+    }
+
+    public static bool IsYes(string value)
+    {
+        return value.Equals("yes", StringComparison.OrdinalIgnoreCase);
     }
 
     // todo: move to UI folder
@@ -227,9 +238,31 @@ public class Program
         Console.Write(Environment.NewLine);
     }
 
-    public static string? Read()
+    public static string Read()
     {
-        return Console.ReadLine();
+        var value = Console.ReadLine();
+
+        while (!IsValidValue(value))
+        {
+            Write($"'{value}' is not valid");
+            value = Console.ReadLine();
+        }
+
+        return value.Trim();
+    }
+
+    public static bool ReadIsContinuing()
+    {
+        var isContinuing = Read();
+
+        while (!IsYesOrNo(isContinuing))
+        {
+            Write($"'{isContinuing}' is not valid");
+            Write("Would you like to continue?");
+            isContinuing = Read();
+        }
+
+        return IsYes(isContinuing);
     }
 
     static Program()
@@ -245,13 +278,6 @@ public class Program
         Write("Enter your username to get started:");
 
         var username = Read();
-
-        while (!IsValidValue(username))
-        {
-            Write("You must enter a username");
-            Write("Enter a username to get started:");
-            username = Read();
-        }
 
         Write($"Hello, {username}!");
 
@@ -274,43 +300,37 @@ public class Program
                 case Options.AddCombatant:
 
                     Write("Add a Transformer");
-                    Write("Enter a name:");
-                    var name = Read();
 
-                    while (!IsValidValue(name))
+                    var shouldContinueAdding = true;
+                    while (shouldContinueAdding)
                     {
-                        Write($"'{name}' is not a valid name");
                         Write("Enter a name:");
-                        name = Read();
-                    }
+                        var name = Read();
 
-                    Write("Enter a faction:");
-
-                    var faction = Read();
-
-                    while (!IsValidValue(faction))
-                    {
-                        Write($"'{faction}' is not a valid faction");
                         Write("Enter a faction:");
-                        faction = Read();
+                        var faction = Read();
+
+                        var newTransformer = _transformerService.Create(name, faction);
+
+                        _transformersRepository.Add(newTransformer);
+                        _transformersRepository.SaveChanges();
+
+                        Write("New Transformer added!");
+                        Write(newTransformer.ToString());
+
+                        Write("Would you like to add another Transformer? (Yes/No)");
+                        shouldContinueAdding = ReadIsContinuing();
                     }
 
-                    var newTransformer = _transformerService.Create(name, faction);
-
-                    _transformersRepository.Add(newTransformer);
-                    _transformersRepository.SaveChanges();
-
-                    Write("New Transformer added!");
-                    Write(newTransformer.ToString());
                     break;
 
                 case Options.RemoveCombatant:
 
                     // todo: test
-                    // list current combatants
                     Write("Remove Transformer(s)");
                     var transformers = _transformersRepository.List();
 
+                    // todo: test
                     if (!transformers.Any())
                     {
                         Write("There are no Transformers to remove");
@@ -324,69 +344,57 @@ public class Program
                         Write(transformer.ToString());
                     }
 
-                    var shouldContiue = true;
-                    while (shouldContiue)
+                    var shouldContiueRemoving = true;
+                    while (shouldContiueRemoving)
                     {
-                        Write("Which Transformer would you like to remove?");
-                        Write($"Select a Transformer(s) by their {nameof(Transformer.Id)}");
                         Write($"Enter the {nameof(Transformer.Id)} or a list of {nameof(Transformer.Id)}s separated by a comma (e.g., 1, 2, 3):");
                         var toRemove = Read();
 
-                        while (!IsValidValue(toRemove))
-                        {
-                            Write($"'{toRemove}' is not a valid {nameof(Transformer.Id)} or list of {nameof(Transformer.Id)}s");
-                            Write($"Enter an {nameof(Transformer.Id)} or list of {nameof(Transformer.Id)}s:");
-                            toRemove = Read();
-                        }
-
-                        // if the string has commas, then split and check each value to see if it is a valid int
                         var delimiter = ',';
-                        if (toRemove.Contains(delimiter))
+                        var isList = toRemove.Contains(delimiter);
+                        var ids = isList ? toRemove.Split(delimiter).Select(x => x.Trim()).ToList()
+                            : [toRemove.Trim()];
+
+                        // todo: test
+                        if (ids.Any(x => !IsValidInt(x)))
                         {
-                            var ids = toRemove.Split(delimiter);
-
-                            // if any are not valid ints, then alert the user
-                            if (ids.Any(x => !IsValidInt(x)))
-                            {
-                                Write($"Not all of these {nameof(Transformer.Id)}s are valid: '{string.Join(delimiter, ids)}'");
-                            }
-                            else
-                            {
-                                var transformerIds = ids.Select(x => int.Parse(x)).ToList();
-                                var transformersToRemove = _transformersRepository.List(x => transformerIds.Contains(x.Id));
-
-                                var transformersNotFound = transformerIds.Where(x => !transformersToRemove.Any(y => y.Id == x));
-
-                                foreach (var notFound in transformersNotFound)
-                                {
-                                    Write($"Unable to remove Transformer with {nameof(Transformer.Id)} of '{notFound}'");
-                                }
-
-                                foreach (var transformer in transformers)
-                                {
-                                    var id = transformer.Id;
-
-                                    try
-                                    {
-                                        _transformersRepository.Remove(transformer);
-                                        Write($"Transformer with {nameof(Transformer.Id)} '{id}' removed");
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        Write($"Unable to remove Transformer with {nameof(Transformer.Id)} of '{id}'");
-                                        Write($"See exception: '{ex.Message}'");
-                                    }
-                                }
-                            }
+                            // todo: test
+                            Write(ids.Count > 1 ? $"Not all of these {nameof(Transformer.Id)}s are valid: '{string.Join(delimiter, ids)}'"
+                            : $"This {nameof(Transformer.Id)} is not valid: '{ids.First()}'");
                         }
                         else
                         {
-                            // todo: add remove one
+                            var transformerIds = ids.Select(x => int.Parse(x)).ToList();
+                            var transformersToRemove = _transformersRepository.List(x => transformerIds.Contains(x.Id));
 
+                            var transformersNotFound = transformerIds.Where(x => !transformersToRemove.Any(y => y.Id == x));
+
+                            // todo: test
+                            foreach (var notFound in transformersNotFound)
+                            {
+                                Write($"Unable to remove Transformer with {nameof(Transformer.Id)} of '{notFound}'");
+                            }
+
+                            foreach (var transformer in transformers)
+                            {
+                                var id = transformer.Id;
+
+                                try
+                                {
+                                    _transformersRepository.Remove(transformer);
+                                    Write($"Transformer with {nameof(Transformer.Id)} '{id}' removed");
+                                }
+                                catch (Exception ex)
+                                {
+                                    // todo: test
+                                    Write($"Unable to remove Transformer with {nameof(Transformer.Id)} of '{id}'");
+                                    Write($"See exception: '{ex.Message}'");
+                                }
+                            }
+                            // todo: test
+                            Write("Would you like to continue removing Transformers? (Yes/No)");
+                            shouldContinueAdding = ReadIsContinuing();
                         }
-                        // if the string has no commas, then check the value to see if it a valid int
-
-                        // ensure that we break the while loop
                     }
 
                     break;
@@ -408,8 +416,7 @@ public class Program
                     break;
 
                 default:
-                    // todo: repeated, could create method
-                    Write($"Sorry, '{option}' is not a supported option");
+                    Write($"'{option}' is not a supported option");
                     break;
             }
         }
