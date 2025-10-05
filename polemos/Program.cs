@@ -104,6 +104,13 @@ internal class Repository<T> : IRepository<T> where T : class
 }
 
 // todo: move this to UI folder
+
+internal class Option
+{
+    public int Id { get; set; }
+    public required string Name { get; set; }
+}
+
 internal class Options
 {
     public const int AddCombatant = 1;
@@ -111,6 +118,12 @@ internal class Options
     public const int SimulateBattle = 3;
     public const int CombatantStatistics = 4;
     public const int Exit = 5;
+
+    public Option AddCombatantOption = new() { Id = AddCombatant, Name = "AddCombatant" };
+    public Option RemoveCombatantOption = new() { Id = RemoveCombatant, Name = "RemoveCombatant" };
+    public Option SimulateBattleOption = new() { Id = SimulateBattle, Name = "SimulateBattle" };
+    public Option CombatantStatisticsOption = new() { Id = CombatantStatistics, Name = "SimulateBattle" };
+    public Option ExitOption = new() { Id = Exit, Name = "Exit" };
 }
 
 // todo: put this in core folder
@@ -199,7 +212,7 @@ internal class TransformerService : ITransformerService
 
 public class Program
 {
-    private static readonly string _options = $"{Options.AddCombatant}: Add Combatant{Environment.NewLine}{Options.RemoveCombatant}: Remove Combatant{Environment.NewLine}{Options.SimulateBattle}: Simulate Battle{Environment.NewLine}{Options.CombatantStatistics}: Combatant Statistics{Environment.NewLine}{Options.Exit}: Exit";
+    private readonly static Options _options;
     private static bool _shouldContinue = true;
 
     private readonly static ITransformerService _transformerService;
@@ -269,6 +282,7 @@ public class Program
     {
         _transformerService = new TransformerService();
         _transformersRepository = new Repository<Transformer>(new AppContext());
+        _options = new Options();
     }
 
     public static void Main()
@@ -281,14 +295,16 @@ public class Program
 
         Write($"Hello, {username}!");
 
+        var options = new List<Option>() { _options.AddCombatantOption, _options.RemoveCombatantOption, _options.SimulateBattleOption, _options.CombatantStatisticsOption, _options.ExitOption };
+
         while (_shouldContinue)
         {
             Write("What would you like to do?");
-            Write(_options);
+            Write(string.Concat(options.Select(x => $"{x.Id}: {x.Name}{Environment.NewLine}")));
 
             var option = Read();
 
-            while (!IsValidInt(option))
+            while (!IsValidInt(option) || !options.Any(x => x.Id == int.Parse(option)))
             {
                 Write($"'{option}' is not a supported option");
                 Write("Enter an option:");
@@ -313,6 +329,7 @@ public class Program
                         var newTransformer = _transformerService.Create(name, faction);
 
                         _transformersRepository.Add(newTransformer);
+                        Write("Adding...");
                         _transformersRepository.SaveChanges();
 
                         Write("New Transformer added!");
@@ -375,13 +392,15 @@ public class Program
                                 Write($"Unable to remove Transformer with {nameof(Transformer.Id)} of '{notFound}'");
                             }
 
-                            foreach (var transformer in transformers)
+                            foreach (var transformerToRemove in transformersToRemove)
                             {
-                                var id = transformer.Id;
+                                var id = transformerToRemove.Id;
 
                                 try
                                 {
-                                    _transformersRepository.Remove(transformer);
+                                    Write("Removing...");
+                                    _transformersRepository.Remove(transformerToRemove);
+                                    _transformersRepository.SaveChanges();
                                     Write($"Transformer with {nameof(Transformer.Id)} '{id}' removed");
                                 }
                                 catch (Exception ex)
