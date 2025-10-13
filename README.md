@@ -16,6 +16,7 @@ A battle simulation system
 # Technologies Used
 
 C#
+EntityFramework
 
 # Requirements
 

@@ -1,4 +1,5 @@
-﻿using System.Linq.Expressions;
+﻿using System.ComponentModel;
+using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 
@@ -7,7 +8,9 @@ namespace polemos;
 // todo: move to data
 internal class AppContext : DbContext
 {
-    public DbSet<Transformer> Transformers { get; set; }
+    public DbSet<Combatant> Combatants { get; set; }
+    public DbSet<SnapShot> SnapShots { get; set; }
+    public DbSet<Battle> Battles { get; set; }
 
     protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
     {
@@ -16,7 +19,14 @@ internal class AppContext : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<Transformer>().HasKey(x => x.Id);
+        modelBuilder.Entity<Combatant>().HasKey(x => x.Combatant_SK);
+        modelBuilder.Entity<Combatant>().HasMany(x => x.SnapShots).WithOne(x => x.Combatant).HasForeignKey(x => x.Combatant_SK);
+
+        modelBuilder.Entity<SnapShot>().HasKey(x => x.SnapShot_SK);
+        modelBuilder.Entity<SnapShot>().HasOne(x => x.Battle).WithMany(x => x.SnapShots).HasForeignKey(x => x.SnapShot_SK);
+
+        modelBuilder.Entity<Battle>().HasKey(x => x.Battle_SK);
+        modelBuilder.Entity<Battle>().HasMany(x => x.SnapShots).WithOne(x => x.Battle).HasForeignKey(x => x.Battle_SK);
     }
 }
 
@@ -38,9 +48,9 @@ internal abstract class SpecificationBase<T> : ISpecification<T>
 }
 
 // todo: move to core folder
-internal class TransformerSpecification : SpecificationBase<ITransformer>
+internal class CombatantSpecification : SpecificationBase<ICombatant>
 {
-    public TransformerSpecification(int id) : base(x => x.Id == id)
+    public CombatantSpecification(int id) : base(x => x.Combatant_SK == id)
     {
     }
 }
@@ -105,10 +115,23 @@ internal class Repository<T> : IRepository<T> where T : class
 
 // todo: move this to UI folder
 
+internal class CombatantOptions
+{
+    public const int Transformer = 1;
+
+    public Option TransformerCombatantOption = new(Transformer, "Transformer");
+}
+
 internal class Option
 {
+    public Option(int id, string name)
+    {
+        Id = id;
+        Name = name;
+    }
+
     public int Id { get; set; }
-    public required string Name { get; set; }
+    public string Name { get; set; }
 }
 
 internal class Options
@@ -119,60 +142,76 @@ internal class Options
     public const int CombatantStatistics = 4;
     public const int Exit = 5;
 
-    public Option AddCombatantOption = new() { Id = AddCombatant, Name = "AddCombatant" };
-    public Option RemoveCombatantOption = new() { Id = RemoveCombatant, Name = "RemoveCombatant" };
-    public Option SimulateBattleOption = new() { Id = SimulateBattle, Name = "SimulateBattle" };
-    public Option CombatantStatisticsOption = new() { Id = CombatantStatistics, Name = "SimulateBattle" };
-    public Option ExitOption = new() { Id = Exit, Name = "Exit" };
-}
-
-// todo: put this in core folder
-internal interface ITransformer : ICombatant
-{
-    string? Faction { get; set; }
+    public Option AddCombatantOption = new(AddCombatant, "AddCombatant");
+    public Option RemoveCombatantOption = new(RemoveCombatant, "RemoveCombatant");
+    public Option SimulateBattleOption = new(SimulateBattle, "SimulateBattle");
+    public Option CombatantStatisticsOption = new(CombatantStatistics, "SimulateBattle");
+    public Option ExitOption = new(Exit, "Exit");
 }
 
 // todo: put this in core folder
 internal interface ICombatant
 {
-    int Id { get; set; }
-    string? Name { get; set; }
+    int Combatant_SK { get; set; }
+    string Name { get; set; }
     int Strength { get; set; }
     int Dexterity { get; set; }
     int HitPoints { get; set; }
-    int Wins { get; set; }
-    int Losses { get; set; }
+    public ICollection<SnapShot> SnapShots { get; set; }
+}
+
+internal class Battle
+{
+    public int Battle_SK { get; set; }
+    public DateTime FoughtOn { get; set; }
+    public ICollection<SnapShot> SnapShots { get; set; } = [];
+}
+
+internal class SnapShot
+{
+    public int SnapShot_SK { get; set; }
+    public int Battle_SK { get; set; }
+    public int Combatant_SK { get; set; }
+    public bool DidWin { get; set; }
+
+    public Battle Battle { get; set; }
+
+    public Combatant Combatant { get; set; }
 }
 
 // todo: move to core folder
-internal class Transformer : ITransformer
+internal class Combatant : ICombatant
 {
-    public int Id { get; set; }
-    public string? Name { get; set; }
-    public string? Faction { get; set; }
+    // todo: does this work?
+    [DisplayName("Id")]
+    public int Combatant_SK { get; set; }
+    public string Name { get; set; }
     public int Strength { get; set; }
     public int Dexterity { get; set; }
     public int HitPoints { get; set; }
-    public int Wins { get; set; }
-    public int Losses { get; set; }
 
+    public ICollection<SnapShot> SnapShots { get; set; } = [];
+
+    // todo: could we put this in a tabel format?
     public override string ToString()
     {
         var delimiter = ":";
-        var properties = typeof(Transformer).GetProperties().Select(x => $"{x.Name}{delimiter}{x.GetValue(this)}");
+
+        // todo: test this valueType
+        var properties = typeof(Combatant).GetProperties().Where(x => x.PropertyType.IsValueType).Select(x => $"{x.Name}{delimiter}{x.GetValue(this)}");
 
         return string.Join(Environment.NewLine, properties);
     }
 }
 
 // todo: add to Core folder
-internal interface ITransformerService
+internal interface ICombatantService
 {
-    Transformer Create(string name, string faction);
+    Combatant Create(string name);
 }
 
 // todo: move to Core folder
-internal class TransformerService : ITransformerService
+internal class TransformerService : ICombatantService
 {
     private readonly int _min = 1;
     private readonly int _max = 20;
@@ -181,7 +220,7 @@ internal class TransformerService : ITransformerService
     {
     }
 
-    public Transformer Create(string name, string faction)
+    public Combatant Create(string name)
     {
         name = name.Trim();
 
@@ -190,19 +229,11 @@ internal class TransformerService : ITransformerService
             throw new Exception($"Expected {nameof(name)} but received '{name}'");
         }
 
-        faction = faction.Trim();
-
-        if (string.IsNullOrEmpty(faction))
-        {
-            throw new Exception($"Expected {nameof(faction)} but received '{faction}");
-        }
-
         var random = new Random();
 
-        return new Transformer()
+        return new Combatant()
         {
             Name = name,
-            Faction = faction,
             Strength = random.Next(_min, _max),
             Dexterity = random.Next(_min, _max),
             HitPoints = random.Next(_min, _max)
@@ -212,11 +243,13 @@ internal class TransformerService : ITransformerService
 
 public class Program
 {
+    private readonly static CombatantOptions _combatantOptions;
     private readonly static Options _options;
-    private static bool _shouldContinue = true;
+    private readonly static Repository<Combatant> _combatantRepository;
+    private readonly static IEnumerable<ICombatantService> _combatantServices;
 
-    private readonly static ITransformerService _transformerService;
-    private readonly static Repository<Transformer> _transformersRepository;
+    private static ICombatantService _combatantService;
+    private static string _combatantServiceName;
 
     // todo: move this to UI folder
     public static bool IsValidValue(string? value)
@@ -231,12 +264,12 @@ public class Program
 
     public static bool IsYesOrNo(string value)
     {
-        return IsYes(value) || value.Equals("no", StringComparison.OrdinalIgnoreCase);
+        return IsYes(value) || Equals(value, "no");
     }
 
     public static bool IsYes(string value)
     {
-        return value.Equals("yes", StringComparison.OrdinalIgnoreCase);
+        return Equals(value, "yes");
     }
 
     // todo: move to UI folder
@@ -264,6 +297,11 @@ public class Program
         return value.Trim();
     }
 
+    public static bool Equals(string value, string comparison)
+    {
+        return IsValidValue(value) && value.Equals(comparison, StringComparison.OrdinalIgnoreCase);
+    }
+
     public static bool ReadIsContinuing()
     {
         var isContinuing = Read();
@@ -278,10 +316,129 @@ public class Program
         return IsYes(isContinuing);
     }
 
+    public static void Add()
+    {
+        Write($"Add a {_combatantServiceName}");
+
+        var shouldContinueAdding = true;
+        while (shouldContinueAdding)
+        {
+            Write("Enter a name:");
+            var name = Read();
+
+            var newCombatant = _combatantService.Create(name);
+
+            _combatantRepository.Add(newCombatant);
+            Write("Adding...");
+            _combatantRepository.SaveChanges();
+
+            Write($"New {_combatantServiceName} added!");
+            Write(newCombatant.ToString());
+
+            Write($"Would you like to add another {_combatantServiceName}? (Yes/No)");
+            shouldContinueAdding = ReadIsContinuing();
+        }
+    }
+
+    public static void Remove()
+    {
+        // todo: test
+        Write($"Remove {_combatantServiceName}(s)");
+        var combatants = _combatantRepository.List();
+
+        // todo: test
+        if (!combatants.Any())
+        {
+            Write($"There are no {_combatantServiceName}s to remove");
+            return;
+        }
+
+        Write($"Here are the current {_combatantServiceName}s:");
+
+        foreach (var combatant in combatants)
+        {
+            Write(combatant.ToString());
+        }
+
+        var shouldContinueRemoving = true;
+        while (shouldContinueRemoving)
+        {
+            Write($"Enter the {nameof(Combatant.Combatant_SK)} or a list of {nameof(Combatant.Combatant_SK)}s separated by a comma (e.g., 1, 2, 3):");
+            var toRemove = Read();
+
+            var delimiter = ',';
+            var isList = toRemove.Contains(delimiter);
+            var ids = isList ? toRemove.Split(delimiter).Select(x => x.Trim()).ToList()
+                : [toRemove.Trim()];
+
+            // todo: test
+            if (ids.Any(x => !IsValidInt(x)))
+            {
+                // todo: test
+                Write(ids.Count > 1 ? $"Not all of these {nameof(Combatant.Combatant_SK)}s are valid: '{string.Join(delimiter, ids)}'"
+                : $"This {nameof(Combatant.Combatant_SK)} is not valid: '{ids.First()}'");
+            }
+            else
+            {
+                var combatantIds = ids.Select(x => int.Parse(x)).ToList();
+                var combatantsToRemove = _combatantRepository.List(x => combatantIds.Contains(x.Combatant_SK));
+
+                var combatantsNotFound = combatantIds.Where(x => !combatantsToRemove.Any(y => y.Combatant_SK == x));
+
+                // todo: test
+                foreach (var notFound in combatantsNotFound)
+                {
+                    Write($"Unable to remove {_combatantServiceName} with {nameof(Combatant.Combatant_SK)} of '{notFound}'");
+                }
+
+                foreach (var combatantToRemove in combatantsToRemove)
+                {
+                    var id = combatantToRemove.Combatant_SK;
+
+                    try
+                    {
+                        Write("Removing...");
+                        _combatantRepository.Remove(combatantToRemove);
+                        _combatantRepository.SaveChanges();
+                        Write($"{_combatantServiceName} with {nameof(Combatant.Combatant_SK)} '{id}' removed");
+                    }
+                    catch (Exception ex)
+                    {
+                        // todo: test
+                        Write($"Unable to remove {_combatantServiceName} with {nameof(Combatant.Combatant_SK)} of '{id}'");
+                        Write($"See exception: '{ex.Message}'");
+                    }
+                }
+                // todo: test
+                Write($"Would you like to continue removing {_combatantServiceName}s? (Yes/No)");
+                shouldContinueRemoving = ReadIsContinuing();
+            }
+        }
+    }
+
+    public static void SimulateBattle()
+    {
+        // todo: implement
+        Console.WriteLine("Not implemented");
+    }
+
+    public static void CombatStatistics()
+    {
+        // todo: implement
+        Console.WriteLine("Not implemented");
+    }
+
+    public static void Exit(string username)
+    {
+        Write($"Goodbye, {username}!");
+        Write("Session ended");
+    }
+
     static Program()
     {
-        _transformerService = new TransformerService();
-        _transformersRepository = new Repository<Transformer>(new AppContext());
+        _combatantServices = new List<ICombatantService>() { new TransformerService() };
+        _combatantRepository = new Repository<Combatant>(new AppContext());
+        _combatantOptions = new CombatantOptions();
         _options = new Options();
     }
 
@@ -294,10 +451,35 @@ public class Program
         var username = Read();
 
         Write($"Hello, {username}!");
+        Write("What kind of combatant would you like to fight?");
+
+        var combatantOptions = new List<Option>() { _combatantOptions.TransformerCombatantOption };
+        Write(string.Concat(combatantOptions.Select(x => $"{x.Id}: {x.Name}{Environment.NewLine}")));
+
+        var combatant = Read();
+        while (!IsValidInt(combatant) || !combatantOptions.Any(x => x.Id == int.Parse(combatant)))
+        {
+            Write($"'{combatant}' is not a supported option");
+            Write("Enter an option:");
+            combatant = Read();
+        }
+
+        try
+        {
+            _combatantServiceName = combatantOptions.Single(x => x.Id == int.Parse(combatant)).Name;
+            _combatantService = _combatantServices.Single(x => x.GetType().Name.Contains(_combatantServiceName, StringComparison.OrdinalIgnoreCase));
+        }
+        catch (Exception ex)
+        {
+            Write($"Getting this combatant has failed with the following error: '{ex}'");
+            Write("Please contact support as soon as possible");
+            Exit(username);
+            return;
+        }
 
         var options = new List<Option>() { _options.AddCombatantOption, _options.RemoveCombatantOption, _options.SimulateBattleOption, _options.CombatantStatisticsOption, _options.ExitOption };
-
-        while (_shouldContinue)
+        var shouldContinue = true;
+        while (shouldContinue)
         {
             Write("What would you like to do?");
             Write(string.Concat(options.Select(x => $"{x.Id}: {x.Name}{Environment.NewLine}")));
@@ -315,123 +497,25 @@ public class Program
             {
                 case Options.AddCombatant:
 
-                    Write("Add a Transformer");
-
-                    var shouldContinueAdding = true;
-                    while (shouldContinueAdding)
-                    {
-                        Write("Enter a name:");
-                        var name = Read();
-
-                        Write("Enter a faction:");
-                        var faction = Read();
-
-                        var newTransformer = _transformerService.Create(name, faction);
-
-                        _transformersRepository.Add(newTransformer);
-                        Write("Adding...");
-                        _transformersRepository.SaveChanges();
-
-                        Write("New Transformer added!");
-                        Write(newTransformer.ToString());
-
-                        Write("Would you like to add another Transformer? (Yes/No)");
-                        shouldContinueAdding = ReadIsContinuing();
-                    }
-
+                    Add();
                     break;
 
                 case Options.RemoveCombatant:
 
-                    // todo: test
-                    Write("Remove Transformer(s)");
-                    var transformers = _transformersRepository.List();
-
-                    // todo: test
-                    if (!transformers.Any())
-                    {
-                        Write("There are no Transformers to remove");
-                        break;
-                    }
-
-                    Write("Here are the current Transformers:");
-
-                    foreach (var transformer in transformers)
-                    {
-                        Write(transformer.ToString());
-                    }
-
-                    var shouldContiueRemoving = true;
-                    while (shouldContiueRemoving)
-                    {
-                        Write($"Enter the {nameof(Transformer.Id)} or a list of {nameof(Transformer.Id)}s separated by a comma (e.g., 1, 2, 3):");
-                        var toRemove = Read();
-
-                        var delimiter = ',';
-                        var isList = toRemove.Contains(delimiter);
-                        var ids = isList ? toRemove.Split(delimiter).Select(x => x.Trim()).ToList()
-                            : [toRemove.Trim()];
-
-                        // todo: test
-                        if (ids.Any(x => !IsValidInt(x)))
-                        {
-                            // todo: test
-                            Write(ids.Count > 1 ? $"Not all of these {nameof(Transformer.Id)}s are valid: '{string.Join(delimiter, ids)}'"
-                            : $"This {nameof(Transformer.Id)} is not valid: '{ids.First()}'");
-                        }
-                        else
-                        {
-                            var transformerIds = ids.Select(x => int.Parse(x)).ToList();
-                            var transformersToRemove = _transformersRepository.List(x => transformerIds.Contains(x.Id));
-
-                            var transformersNotFound = transformerIds.Where(x => !transformersToRemove.Any(y => y.Id == x));
-
-                            // todo: test
-                            foreach (var notFound in transformersNotFound)
-                            {
-                                Write($"Unable to remove Transformer with {nameof(Transformer.Id)} of '{notFound}'");
-                            }
-
-                            foreach (var transformerToRemove in transformersToRemove)
-                            {
-                                var id = transformerToRemove.Id;
-
-                                try
-                                {
-                                    Write("Removing...");
-                                    _transformersRepository.Remove(transformerToRemove);
-                                    _transformersRepository.SaveChanges();
-                                    Write($"Transformer with {nameof(Transformer.Id)} '{id}' removed");
-                                }
-                                catch (Exception ex)
-                                {
-                                    // todo: test
-                                    Write($"Unable to remove Transformer with {nameof(Transformer.Id)} of '{id}'");
-                                    Write($"See exception: '{ex.Message}'");
-                                }
-                            }
-                            // todo: test
-                            Write("Would you like to continue removing Transformers? (Yes/No)");
-                            shouldContinueAdding = ReadIsContinuing();
-                        }
-                    }
-
+                    Remove();
                     break;
 
                 case Options.SimulateBattle:
-                    // todo: implement
-                    Console.WriteLine("Not implemented");
+                    SimulateBattle();
                     break;
 
                 case Options.CombatantStatistics:
-                    // todo: implement
-                    Console.WriteLine("Not implemented");
+                    CombatStatistics();
                     break;
 
                 case Options.Exit:
-                    _shouldContinue = false;
-                    Write($"Goodbye, {username}!");
-                    Write("Session ended");
+                    shouldContinue = false;
+                    Exit(username);
                     break;
 
                 default:
