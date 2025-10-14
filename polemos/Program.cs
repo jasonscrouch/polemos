@@ -1,4 +1,5 @@
-﻿using System.ComponentModel;
+﻿using System.Collections;
+using System.ComponentModel;
 using System.Linq.Expressions;
 using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
@@ -142,10 +143,10 @@ internal class Options
     public const int CombatantStatistics = 4;
     public const int Exit = 5;
 
-    public Option AddCombatantOption = new(AddCombatant, "AddCombatant");
-    public Option RemoveCombatantOption = new(RemoveCombatant, "RemoveCombatant");
-    public Option SimulateBattleOption = new(SimulateBattle, "SimulateBattle");
-    public Option CombatantStatisticsOption = new(CombatantStatistics, "SimulateBattle");
+    public Option AddCombatantOption = new(AddCombatant, "Add Combatant");
+    public Option RemoveCombatantOption = new(RemoveCombatant, "Remove Combatant");
+    public Option SimulateBattleOption = new(SimulateBattle, "Simulate Battle");
+    public Option CombatantStatisticsOption = new(CombatantStatistics, "Combatant Statistics");
     public Option ExitOption = new(Exit, "Exit");
 }
 
@@ -198,7 +199,7 @@ internal class Combatant : ICombatant
         var delimiter = ":";
 
         // todo: test this valueType
-        var properties = typeof(Combatant).GetProperties().Where(x => x.PropertyType.IsValueType).Select(x => $"{x.Name}{delimiter}{x.GetValue(this)}");
+        var properties = typeof(Combatant).GetProperties().Where(x => !x.PropertyType.IsAssignableTo(typeof(IEnumerable<SnapShot>))).Select(x => $"{x.Name}{delimiter}{x.GetValue(this)}");
 
         return string.Join(Environment.NewLine, properties);
     }
@@ -273,7 +274,7 @@ public class Program
     }
 
     // todo: move to UI folder
-    public static void Write(string? text)
+    public static void Write(string? text, bool addNewLine = true)
     {
         if (string.IsNullOrEmpty(text?.Trim()))
         {
@@ -281,7 +282,11 @@ public class Program
         }
 
         Console.WriteLine(text);
-        Console.Write(Environment.NewLine);
+
+        if (addNewLine)
+        {
+            Console.Write(Environment.NewLine);
+        }
     }
 
     public static string Read()
@@ -454,7 +459,7 @@ public class Program
         Write("What kind of combatant would you like to fight?");
 
         var combatantOptions = new List<Option>() { _combatantOptions.TransformerCombatantOption };
-        Write(string.Concat(combatantOptions.Select(x => $"{x.Id}: {x.Name}{Environment.NewLine}")));
+        Write(string.Concat(combatantOptions.Select(x => $"{x.Id}: {x.Name}{Environment.NewLine}")), false);
 
         var combatant = Read();
         while (!IsValidInt(combatant) || !combatantOptions.Any(x => x.Id == int.Parse(combatant)))
@@ -471,7 +476,7 @@ public class Program
         }
         catch (Exception ex)
         {
-            Write($"Getting this combatant has failed with the following error: '{ex}'");
+            Write($"Getting this kind of combatant has failed with the following error: '{ex}'");
             Write("Please contact support as soon as possible");
             Exit(username);
             return;
@@ -482,7 +487,7 @@ public class Program
         while (shouldContinue)
         {
             Write("What would you like to do?");
-            Write(string.Concat(options.Select(x => $"{x.Id}: {x.Name}{Environment.NewLine}")));
+            Write(string.Concat(options.Select(x => $"{x.Id}: {x.Name}{Environment.NewLine}")), false);
 
             var option = Read();
 

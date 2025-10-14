@@ -8,10 +8,11 @@ A battle simulation system
 
 # Features
 
-1. Ability to add and remove
-2. Ability to battle any two and get a result
-3. Ability to get win and loss rate
-4. Console or UI display to perform the above actions / display results
+1. Ability to add a combatant
+2. Ability to remove a combatant
+3. Ability to battle any two and get a result
+4. Ability to get win and loss rate
+5. Console or UI display to perform the above actions / display results
 
 # Technologies Used
 
