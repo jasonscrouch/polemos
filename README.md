@@ -29,6 +29,10 @@ VS Code or other IDE capable of running .exe files
 2. Open in IDE (e.g., Visual Studio Code with C# Dev Tools Extension)
 3. Run
 
+# Special Thanks
+
+I'd like to thank [DevIQ](https://deviq.com/) for help with the Respository Pattern and the Specification Pattern.
+
 Usage Instructions
 
 Documentation

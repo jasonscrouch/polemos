@@ -1,7 +1,5 @@
-﻿using System.Collections;
-using System.ComponentModel;
+﻿using System.ComponentModel;
 using System.Linq.Expressions;
-using System.Security.Cryptography.X509Certificates;
 using Microsoft.EntityFrameworkCore;
 
 namespace polemos;
@@ -34,25 +32,42 @@ internal class AppContext : DbContext
 // todo: move to core folder
 internal interface ISpecification<T>
 {
-    Expression<Func<T, bool>> Criteria { get; set; }
+    Expression<Func<T, bool>> Criteria { get; }
+
+    List<Expression<Func<T, object>>> Includes { get; }
 }
 
 // todo: move to core folder
-internal abstract class SpecificationBase<T> : ISpecification<T>
+internal abstract class BaseSpecification<T> : ISpecification<T>
 {
-    public Expression<Func<T, bool>> Criteria { get; set; }
+    public Expression<Func<T, bool>> Criteria { get; }
 
-    public SpecificationBase(Expression<Func<T, bool>> criteria)
+    public List<Expression<Func<T, object>>> Includes { get; } = [];
+
+    public BaseSpecification(Expression<Func<T, bool>> criteria)
     {
         Criteria = criteria;
+    }
+
+    public void AddInclude(Expression<Func<T, object>> include)
+    {
+        Includes.Add(include);
     }
 }
 
 // todo: move to core folder
-internal class CombatantSpecification : SpecificationBase<ICombatant>
+internal class CombatantByNameSpecification : BaseSpecification<Combatant>
 {
-    public CombatantSpecification(int id) : base(x => x.Combatant_SK == id)
+    public CombatantByNameSpecification(string name) : base(x => x.Name == name)
     {
+    }
+}
+
+internal class CombatantWithSnapShotsSpecification : BaseSpecification<Combatant>
+{
+    public CombatantWithSnapShotsSpecification(Expression<Func<Combatant, bool>> predicate) : base(predicate)
+    {
+        AddInclude(x => x.SnapShots);
     }
 }
 
@@ -60,12 +75,11 @@ internal class CombatantSpecification : SpecificationBase<ICombatant>
 internal interface IRepository<T>
 {
     T Add(T entity);
-
-    // todo: do we need this method?
-    T? Find(int id);
+    T? FirstOrDefault(ISpecification<T> specification);
     IEnumerable<T> List();
-    IList<T> List(Expression<Func<T, bool>> predicate);
+    IEnumerable<T> List(ISpecification<T> specification);
     T Remove(T entity);
+    IEnumerable<T> RemoveRange(IEnumerable<T> entities);
     int SaveChanges();
 }
 
@@ -86,9 +100,9 @@ internal class Repository<T> : IRepository<T> where T : class
         return entity;
     }
 
-    public T? Find(int id)
+    public T? FirstOrDefault(ISpecification<T> specification)
     {
-        return _appContext.Set<T>().Find(new object[] { id });
+        return _appContext.Set<T>().FirstOrDefault(specification.Criteria);
     }
 
     public IEnumerable<T> List()
@@ -96,9 +110,15 @@ internal class Repository<T> : IRepository<T> where T : class
         return _appContext.Set<T>();
     }
 
-    public IList<T> List(Expression<Func<T, bool>> predicate)
+    public IEnumerable<T> List(ISpecification<T> specification)
     {
-        return _appContext.Set<T>().Where(predicate).ToList();
+        var queryableResultWithIncludes = specification.Includes
+                .Aggregate(_appContext.Set<T>().AsQueryable(),
+                    (current, include) => current.Include(include));
+
+        return queryableResultWithIncludes
+                        .Where(specification.Criteria)
+                        .AsEnumerable();
     }
 
     public T Remove(T entity)
@@ -106,6 +126,13 @@ internal class Repository<T> : IRepository<T> where T : class
         _appContext.Set<T>().Remove(entity);
 
         return entity;
+    }
+
+    public IEnumerable<T> RemoveRange(IEnumerable<T> entities)
+    {
+        _appContext.Set<T>().RemoveRange(entities);
+
+        return entities;
     }
 
     public int SaveChanges()
@@ -183,13 +210,13 @@ internal class SnapShot
 // todo: move to core folder
 internal class Combatant : ICombatant
 {
-    // todo: does this work?
-    [DisplayName("Id")]
     public int Combatant_SK { get; set; }
     public string Name { get; set; }
     public int Strength { get; set; }
     public int Dexterity { get; set; }
     public int HitPoints { get; set; }
+
+    //todo: with the various combatant types, add a way to track type
 
     public ICollection<SnapShot> SnapShots { get; set; } = [];
 
@@ -247,6 +274,7 @@ public class Program
     private readonly static CombatantOptions _combatantOptions;
     private readonly static Options _options;
     private readonly static Repository<Combatant> _combatantRepository;
+    private readonly static Repository<SnapShot> _snapShotRepository;
     private readonly static IEnumerable<ICombatantService> _combatantServices;
 
     private static ICombatantService _combatantService;
@@ -265,12 +293,17 @@ public class Program
 
     public static bool IsYesOrNo(string value)
     {
-        return IsYes(value) || Equals(value, "no");
+        return IsYes(value) || IsNo(value);
     }
 
     public static bool IsYes(string value)
     {
         return Equals(value, "yes");
+    }
+
+    public static bool IsNo(string value)
+    {
+        return Equals(value, "no");
     }
 
     // todo: move to UI folder
@@ -331,27 +364,63 @@ public class Program
             Write("Enter a name:");
             var name = Read();
 
+            var existingCombatant = _combatantRepository.FirstOrDefault(new CombatantByNameSpecification(name));
+
+            if (existingCombatant != null)
+            {
+                Write($"A {_combatantServiceName} with the name '{existingCombatant.Name}' already exists");
+                Write($"Are you sure you want to add a new {_combatantServiceName} with the same name? (Yes/No)?");
+
+                var shouldAdd = ReadIsContinuing();
+
+                if (!shouldAdd)
+                {
+                    continue;
+                }
+            }
+
             var newCombatant = _combatantService.Create(name);
 
             _combatantRepository.Add(newCombatant);
             Write("Adding...");
-            _combatantRepository.SaveChanges();
 
-            Write($"New {_combatantServiceName} added!");
-            Write(newCombatant.ToString());
+            try
+            {
+                _combatantRepository.SaveChanges();
+                Write($"New {_combatantServiceName} added!");
 
-            Write($"Would you like to add another {_combatantServiceName}? (Yes/No)");
+                Write(newCombatant.ToString());
+
+                Write($"Would you like to add another {_combatantServiceName}? (Yes/No)");
+
+            }
+            catch (Exception ex)
+            {
+                Write($"Unable to add {_combatantServiceName}");
+                Write($"See exception: '{ex.Message}'");
+
+                Write($"Would you like to try adding a {_combatantServiceName} again? (Yes/No)");
+            }
+
             shouldContinueAdding = ReadIsContinuing();
         }
     }
 
     public static void Remove()
     {
-        // todo: test
         Write($"Remove {_combatantServiceName}(s)");
+
+        Write($"WARNING: Removing a {_combatantServiceName} will also remove any data associated with it");
+        Write("Are you sure you want to continue removing? (Yes/No)");
+        var shouldRemove = ReadIsContinuing();
+
+        if (!shouldRemove)
+        {
+            return;
+        }
+
         var combatants = _combatantRepository.List();
 
-        // todo: test
         if (!combatants.Any())
         {
             Write($"There are no {_combatantServiceName}s to remove");
@@ -376,21 +445,19 @@ public class Program
             var ids = isList ? toRemove.Split(delimiter).Select(x => x.Trim()).ToList()
                 : [toRemove.Trim()];
 
-            // todo: test
+            //todo: test with asdf, 2, 3
             if (ids.Any(x => !IsValidInt(x)))
             {
-                // todo: test
                 Write(ids.Count > 1 ? $"Not all of these {nameof(Combatant.Combatant_SK)}s are valid: '{string.Join(delimiter, ids)}'"
                 : $"This {nameof(Combatant.Combatant_SK)} is not valid: '{ids.First()}'");
             }
             else
             {
                 var combatantIds = ids.Select(x => int.Parse(x)).ToList();
-                var combatantsToRemove = _combatantRepository.List(x => combatantIds.Contains(x.Combatant_SK));
+                var combatantsToRemove = _combatantRepository.List(new CombatantWithSnapShotsSpecification(x => combatantIds.Contains(x.Combatant_SK)));
 
                 var combatantsNotFound = combatantIds.Where(x => !combatantsToRemove.Any(y => y.Combatant_SK == x));
 
-                // todo: test
                 foreach (var notFound in combatantsNotFound)
                 {
                     Write($"Unable to remove {_combatantServiceName} with {nameof(Combatant.Combatant_SK)} of '{notFound}'");
@@ -403,6 +470,7 @@ public class Program
                     try
                     {
                         Write("Removing...");
+                        _snapShotRepository.RemoveRange(combatantToRemove.SnapShots);
                         _combatantRepository.Remove(combatantToRemove);
                         _combatantRepository.SaveChanges();
                         Write($"{_combatantServiceName} with {nameof(Combatant.Combatant_SK)} '{id}' removed");
@@ -414,7 +482,7 @@ public class Program
                         Write($"See exception: '{ex.Message}'");
                     }
                 }
-                // todo: test
+
                 Write($"Would you like to continue removing {_combatantServiceName}s? (Yes/No)");
                 shouldContinueRemoving = ReadIsContinuing();
             }
@@ -442,7 +510,11 @@ public class Program
     static Program()
     {
         _combatantServices = new List<ICombatantService>() { new TransformerService() };
-        _combatantRepository = new Repository<Combatant>(new AppContext());
+
+        var appContext = new AppContext();
+
+        _combatantRepository = new Repository<Combatant>(appContext);
+        _snapShotRepository = new Repository<SnapShot>(appContext);
         _combatantOptions = new CombatantOptions();
         _options = new Options();
     }
