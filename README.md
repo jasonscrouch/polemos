@@ -16,8 +16,11 @@ A battle simulation system
 
 # Technologies Used
 
-C#
+React
+Vite
 EntityFramework
+C#
+TS
 
 # Requirements
 
