@@ -36,6 +36,10 @@ VS Code or other IDE capable of running .exe files
 
 I'd like to thank [DevIQ](https://deviq.com/) for help with the Respository Pattern and the Specification Pattern.
 
+# Images
+
+All images from https://stock.adobe.com/
+
 Usage Instructions
 
 Documentation
