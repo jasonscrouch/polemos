@@ -1,10 +1,11 @@
 import { BrowserRouter, Routes, Route } from "react-router";
 import AuthenticationContext from "./components/AuthenticationContext";
 import ThemeContext from "./components/ThemeContext";
-import Home from "./components/Home";
+import Home from "./components/pages/Home";
 import Layout from "./components/Layout";
-import { Container } from "react-bootstrap";
-import NotFoundPage from "./components/NotFoundPage";
+import NotFound from "./components/pages/NotFound";
+import About from "./components/pages/About";
+import SignIn from "./components/pages/SignIn";
 
 export default function App()
 {
@@ -15,8 +16,10 @@ export default function App()
           <Routes>
             <Route path="/" element={ <Layout />}>
               <Route index element={ <Home/> } />
+              <Route path="/about" element={ <About />} />
+              <Route path="/signin" element={ <SignIn /> }></Route>
             </Route>
-            <Route path="/*" element={<NotFoundPage />}/>
+            <Route path="/*" element={<NotFound />}/>
           </Routes>
         </BrowserRouter>
       </ThemeContext>

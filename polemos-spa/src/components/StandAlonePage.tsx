@@ -6,10 +6,10 @@ interface Props {
     icon: string
 }
 
-export default function StandAlongPage({text, icon}: Props ) {
+export default function StandAlonePage({text, icon}: Props ) {
 
     return(
-        <div className="d-flex align-items-center vh-100 stand-alone-page">
+        <div className="d-flex align-items-center vh-100">
             <Container className="bg-body rounded-5 text-center p-2 w-25">
             <Container className={`${icon} fs-1`} />
             <Container className="fs-2">{text}</Container>
