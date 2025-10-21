@@ -1,5 +1,4 @@
 import { Container } from "react-bootstrap";
-import StandAlonePage from "../StandAlonePage";
 
 export default function SignIn() {
 

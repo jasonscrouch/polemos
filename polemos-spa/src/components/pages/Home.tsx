@@ -1,11 +1,29 @@
-import { Button, Container, Image } from "react-bootstrap";
+import { useEffect } from "react";
+import { Button, Container } from "react-bootstrap";
 
 export default function Home() {
 
 // todo: try to make this look like apple.com
 
+// frontend/src/api.js
+//const API_BASE_URL = import.meta.env.PROD ? '/weatherforecast' : 'http://backend:80/weatherforecast'; // 'backend' is the service name
+
+async function fetchData() {
+  const response = await fetch('http://backend:80/weatherforecast');
+  const data = await response.json();
+  return data;
+}
+
+const data = useEffect(() => {
+
+    const getForecast = async () => await fetchData();
+
+    getForecast();
+});
+
     return (
     <>
+        {data}
         <Container className="p-4 hero rounded-2">
             <div className="row align-items-center g-5 py-3"> 
                 <div className="col-lg-6"> 

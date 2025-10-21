@@ -5,6 +5,8 @@ VisualStudioVersion = 17.0.31903.59
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polemos", "polemos\polemos.csproj", "{191DD6FB-7ED7-4B2D-A897-E9AC0628878D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "polemos-api", "polemos-api\polemos-api.csproj", "{4D70B00F-4897-46D5-8976-11949011B614}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -18,5 +20,9 @@ Global
 		{191DD6FB-7ED7-4B2D-A897-E9AC0628878D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{191DD6FB-7ED7-4B2D-A897-E9AC0628878D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{191DD6FB-7ED7-4B2D-A897-E9AC0628878D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4D70B00F-4897-46D5-8976-11949011B614}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4D70B00F-4897-46D5-8976-11949011B614}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4D70B00F-4897-46D5-8976-11949011B614}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4D70B00F-4897-46D5-8976-11949011B614}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

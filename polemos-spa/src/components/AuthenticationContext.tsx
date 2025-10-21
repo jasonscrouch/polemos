@@ -23,10 +23,12 @@ export default function AuthenticationContext({ children }: Props) {
 
     function signIn() {
         // todo: implement
+        
     }
 
     function signOut() {
         // todo: implement
+        setAuthnUser(undefined);
     }
 
     return (
