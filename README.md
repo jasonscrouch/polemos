@@ -4,33 +4,42 @@ Polemos
 
 # Project Description
 
-A battle simulation system
+A battle simulation in which a user creates combatants and battles them.
 
 # Features
 
-1. Ability to add a combatant
-2. Ability to remove a combatant
-3. Ability to battle any two and get a result
-4. Ability to get win and loss rate
-5. Console or UI display to perform the above actions / display results
+1. Add a combatant
+2. Remove a combatant
+3. Battle combatants
+4. View battle statistics
 
 # Technologies Used
 
 React
+React Router
 Vite
+Bootstrap
+Bootstrap Icons
 EntityFramework
+
+# Languages Used
+
 C#
 TS
 
 # Requirements
 
-VS Code or other IDE capable of running .exe files
+VS Code or another IDE.
 
-# Installation Instructions
+Docker Desktop and the VS Code Containers extension are encouraged. These will make it easy to select the `docker-compose.yml` file and `compose up`.
 
-1. Pull the project
-2. Open in IDE (e.g., Visual Studio Code with C# Dev Tools Extension)
-3. Run
+# Installation Instructions using Docker
+
+1. Start Docker Desktop
+2. Pull the project
+3. Open project in IDE
+4. Using the VS Code Containers extension, right click the `docker-compose.yml` file and select `compose up`.
+5. Navigate to Docker Desktop's Containers and select the frontend's port.
 
 # Special Thanks
 
@@ -39,16 +48,6 @@ I'd like to thank [DevIQ](https://deviq.com/) for help with the Respository Patt
 # Images
 
 All images from https://stock.adobe.com/
-
-Usage Instructions
-
-Documentation
-
-Problem Statement: Battle Simulation System - Transformer
-You are tasked with developing a simple battle simulation system. The system is intended to be
-for transformers. The system should allow users to add transformers, remove transformers,
-simulate and display battle results, and display information about transformers.
-System requirements
 
 Additional requirements 6. Your “boss” would like the simulation system to support other types of battles in the
 future.
