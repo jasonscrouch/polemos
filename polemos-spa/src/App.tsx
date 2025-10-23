@@ -6,6 +6,7 @@ import Layout from "./components/Layout";
 import NotFound from "./components/pages/NotFound";
 import About from "./components/pages/About";
 import SignIn from "./components/pages/SignIn";
+import SignUp from "./components/pages/SignUp";
 
 export default function App()
 {
@@ -18,6 +19,7 @@ export default function App()
               <Route index element={ <Home/> } />
               <Route path="/about" element={ <About />} />
               <Route path="/signin" element={ <SignIn /> }></Route>
+              <Route path="/signup" element={ <SignUp />}></Route>
             </Route>
             <Route path="/*" element={<NotFound />}/>
           </Routes>
