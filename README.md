@@ -15,17 +15,17 @@ A battle simulation in which a user creates combatants and battles them.
 
 # Technologies Used
 
-React
-React Router
-Vite
-Bootstrap
-Bootstrap Icons
-EntityFramework
+- React
+- React Router
+- Vite
+- Bootstrap
+- Bootstrap Icons
+- EntityFramework
 
 # Languages Used
 
-C#
-TS
+- C#
+- TS
 
 # Requirements
 
@@ -43,7 +43,7 @@ Docker Desktop and the VS Code Containers extension are encouraged. These will m
 
 # Special Thanks
 
-I'd like to thank [DevIQ](https://deviq.com/) for help with the Respository Pattern and the Specification Pattern.
+I'd like to thank [DevIQ](https://deviq.com/) for help with the Respository Pattern and the Specification Pattern. [Intro to GraphQL with .NET (C#) & Hot Chocolate](https://www.apollographql.com/tutorials/intro-hotchocolate/01-overview-setup) for help with GraphQL and HotChocolate.
 
 # Images
 
