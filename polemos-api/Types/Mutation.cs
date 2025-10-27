@@ -13,6 +13,8 @@ public class Mutation
     {
         try
         {
+            // todo: ensure that username and email are unique (i.e., not multiple users with the same data)
+
             var appUser = new ApplicationUser() { Name = input.Username, Email = input.Email, Password = input.Password };
             var hashedPassword = new PasswordHasher<ApplicationUser>().HashPassword(appUser, appUser.Password);
 
