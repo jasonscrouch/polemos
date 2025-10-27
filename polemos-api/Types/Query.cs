@@ -1,3 +1,4 @@
+using polemos_api.Data.Models;
 using polemos_api.Data.Repository;
 using polemos_api.Data.Specifications.UserSpecifications;
 
@@ -5,8 +6,8 @@ namespace polemos_api.Types;
 
 public class Query
 {
-    [GraphQLDescription("A user")]
-    public async Task<User?> GetUser([ID] int id, IRepository<Data.User> userRepository)
+    [GraphQLDescription("Gets a user")]
+    public async Task<User?> GetUser([ID] int id, IRepository<ApplicationUser> userRepository)
     {
         var user = await userRepository.SingleAsync(new UserByIdSpecification(id));
 

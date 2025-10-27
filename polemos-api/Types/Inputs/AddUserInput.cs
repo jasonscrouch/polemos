@@ -1,6 +1,6 @@
+namespace polemos_api.Types.Inputs;
 
-namespace polemos_api.Types;
-
+[GraphQLDescription("Input for adding a user")]
 public class AddUserInput
 {
     [GraphQLDescription("The user's name")]

@@ -41,6 +41,12 @@ Docker Desktop and the VS Code Containers extension are encouraged. These will m
 4. Using the VS Code Containers extension, right click the `docker-compose.yml` file and select `compose up`.
 5. Navigate to Docker Desktop's Containers and select the frontend's port.
 
+# Developing
+
+## API
+
+When developing the API, use [Applo Sandbox](https://studio.apollographql.com/sandbox/explorer), making sure to enable CORS in the `Program.cs`. This will help as you develop GraphQL operations and user HotChocolate.
+
 # Special Thanks
 
 I'd like to thank [DevIQ](https://deviq.com/) for help with the Respository Pattern and the Specification Pattern. [Intro to GraphQL with .NET (C#) & Hot Chocolate](https://www.apollographql.com/tutorials/intro-hotchocolate/01-overview-setup) for help with GraphQL and HotChocolate.
@@ -48,6 +54,8 @@ I'd like to thank [DevIQ](https://deviq.com/) for help with the Respository Patt
 # Images
 
 All images from https://stock.adobe.com/
+
+---
 
 Additional requirements 6. Your “boss” would like the simulation system to support other types of battles in the
 future.
