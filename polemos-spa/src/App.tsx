@@ -7,24 +7,35 @@ import NotFound from "./components/pages/NotFound";
 import About from "./components/pages/About";
 import SignIn from "./components/pages/SignIn";
 import SignUp from "./components/pages/SignUp";
+import { ApolloClient, HttpLink, InMemoryCache, gql } from "@apollo/client";
+import { ApolloProvider } from "@apollo/client/react";
+import Help from "./components/pages/Help";
 
 export default function App()
 {
+  const client = new ApolloClient({
+    link: new HttpLink({ uri: "http://localhost:8000/graphql" }),
+    cache: new InMemoryCache(),
+  });
+
   return(
-    <AuthenticationContext>
-      <ThemeContext>
-        <BrowserRouter>
-          <Routes>
-            <Route path="/" element={ <Layout />}>
-              <Route index element={ <Home/> } />
-              <Route path="/about" element={ <About />} />
-              <Route path="/signin" element={ <SignIn /> }></Route>
-              <Route path="/signup" element={ <SignUp />}></Route>
-            </Route>
-            <Route path="/*" element={<NotFound />}/>
-          </Routes>
-        </BrowserRouter>
-      </ThemeContext>
-    </AuthenticationContext>
+    <ApolloProvider client={client}>
+      <AuthenticationContext>
+        <ThemeContext>
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={ <Layout />}>
+                <Route index element={ <Home/> } />
+                <Route path="/about" element={ <About />} />
+                <Route path="/help" element={ <Help /> }/>
+                <Route path="/signin" element={ <SignIn /> }></Route>
+                <Route path="/signup" element={ <SignUp />}></Route>
+              </Route>
+              <Route path="/*" element={<NotFound />}/>
+            </Routes>
+          </BrowserRouter>
+        </ThemeContext>
+      </AuthenticationContext>
+    </ApolloProvider>
   );
 };

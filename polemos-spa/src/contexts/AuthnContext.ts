@@ -1,17 +1,18 @@
 import { createContext } from "react";
 
-export interface AppUser {
-    displayName: string,
+export interface ApplicationUser {
+    id: number,
+    username: string,
     email: string
 }
 
-type AuthContext = {
-    authnUser?: AppUser,
+type AuthnContext = {
+    authnUser?: ApplicationUser,
     signIn: () => void,
     signOut: () => void
 }
 
-export const AuthnContext = createContext<AuthContext>(
+export const AuthnContext = createContext<AuthnContext>(
     {
         authnUser: undefined,
         signIn: () => {},

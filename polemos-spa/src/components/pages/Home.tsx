@@ -2,8 +2,6 @@ import { Button, Container } from "react-bootstrap";
 
 export default function Home() {
 
-// todo: try to make this look like apple.com
-
     return (
     <>
         <Container className="p-4 hero rounded-2">

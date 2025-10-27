@@ -6,6 +6,8 @@ import { AuthnContext } from '../contexts/AuthnContext';
 
 export default function NavigationBar() {
 
+    // todo: need to get a user signed in to test off canvas
+
     const styleContext = useContext(StyleContext);
     const themeIcon = `bi bi-${!styleContext.isLight() ? 'sun' : 'moon'}-fill`;
     const themeTitle = `Swtich to ${!styleContext.isLight() ? 'Dark' : 'Light'} Mode`;
@@ -20,7 +22,6 @@ export default function NavigationBar() {
             <Container>
                 <Nav>
                     <NavLink className="navbar-brand" to="/" title="Home">Polemos</NavLink>
-                    <NavLink to="/about" className="nav-link">About</NavLink>
                 </Nav>
                 <Container className='d-flex justify-content-end'>
                     <Button 
@@ -36,7 +37,7 @@ export default function NavigationBar() {
                         onClick={() => setShowOffCanvas(true)}
                         title="Me"
                         >
-                            {authnContext.authnUser.displayName}
+                            {authnContext.authnUser.username}
                         </Button>
                         : <Link className='btn btn-outline-primary' to='/signin' title="Sign In">Sign In</Link>
                     }
