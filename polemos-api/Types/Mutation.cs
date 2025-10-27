@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Identity;
 using polemos_api.Data.Models;
 using polemos_api.Data.Repository;
 using polemos_api.Types.Inputs;
@@ -12,10 +13,15 @@ public class Mutation
     {
         try
         {
-            var user = userRepository.Add(new ApplicationUser() { Name = input.Username, Email = input.Email, Password = input.Password });
+            var appUser = new ApplicationUser() { Name = input.Username, Email = input.Email, Password = input.Password };
+            var hashedPassword = new PasswordHasher<ApplicationUser>().HashPassword(appUser, appUser.Password);
+
+            appUser.Password = hashedPassword;
+
+            userRepository.Add(appUser);
             await userRepository.SaveChangesAsync();
 
-            return new AddUserPayload(StatusCodes.Status200OK, true, "User added", new User(user.User_SK, user.Name, user.Email));
+            return new AddUserPayload(StatusCodes.Status200OK, true, "User added", new User(appUser.User_SK, appUser.Name, appUser.Email));
         }
         catch (Exception ex)
         {
