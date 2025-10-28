@@ -1,2 +1,5 @@
-polemos/polemos/bin/
-polemos/polemos/obj/
+polemos-api/bin/
+polemos-api/obj/
+polemos/bin/
+polemos/obj/
+.DS_Store
