@@ -8,10 +8,11 @@ A battle simulation in which a user creates combatants and battles them.
 
 # Features
 
-1. Add a combatant
-2. Remove a combatant
-3. Battle combatants
-4. View battle statistics
+1. Sign Up and Sign In
+2. Add a combatant (coming soon)
+3. Remove a combatant (coming soon)
+4. Battle combatants (coming soon)
+5. View battle statistics (coming soon)
 
 # Technologies Used
 
@@ -24,6 +25,7 @@ A battle simulation in which a user creates combatants and battles them.
 - Bootstrap Icons
 - Apollo Client
 - GraphQL
+- SASS
 
 ## Server
 
@@ -35,29 +37,33 @@ A battle simulation in which a user creates combatants and battles them.
 - C#
 - TS
 
-# Requirements
+# System Requirements
 
-VS Code or another IDE.
+- VS Code or another IDE
 
-Docker Desktop and the VS Code Containers extension are encouraged. These will make it easy to select the `docker-compose.yml` file and `compose up`.
+## Encouraged
 
-# Installation Instructions using Docker
+- Docker Desktop and the VS Code Containers extension are both encouraged. With Docker Desktop running and VS Code Containers installed, it will be easy to select the `docker-compose.yml` file and `compose up`.
+
+# Installation Instructions using Docker Desktop and VS Code Containers
 
 1. Start Docker Desktop
 2. Pull the project
-3. Open project in IDE
-4. Using the VS Code Containers extension, right click the `docker-compose.yml` file and select `compose up`.
+3. Open project in VS Code
+4. Using the Containers extension, right click the `docker-compose.yml` file and select `compose up`.
 5. Navigate to Docker Desktop's Containers and select the frontend's port.
 
 # Developing
 
-## API
+## API and SPA
 
-When developing the API, use [Apollo Sandbox](https://studio.apollographql.com/sandbox/explorer), making sure to enable CORS in the `Program.cs`. This will help as you develop GraphQL operations and use HotChocolate.
+When developing the API, use [Apollo Sandbox](https://studio.apollographql.com/sandbox/explorer), making sure to enable CORS in the API's `Program.cs`. The sandbox will build out operations (e.g., query, mutation) using the GraphQL syntax. This will make it easy to manually test these operations and copy paste them into the SPA.
 
 # Special Thanks
 
-I'd like to thank [DevIQ](https://deviq.com/) for help with the Respository Pattern and the Specification Pattern. [Intro to GraphQL with .NET (C#) & Hot Chocolate](https://www.apollographql.com/tutorials/intro-hotchocolate/01-overview-setup) for help with GraphQL and HotChocolate. [Introduction to Apollo Client](https://www.apollographql.com/docs/react) for the Apollo Client walkthrough.
+- [DevIQ](https://deviq.com/) for help with the Respository and Specification Pattern.
+- [Intro to GraphQL with .NET (C#) & Hot Chocolate](https://www.apollographql.com/tutorials/intro-hotchocolate/01-overview-setup) for explaining GraphQL and HotChocolate.
+- [Introduction to Apollo Client](https://www.apollographql.com/docs/react) for the Apollo Client walkthrough.
 
 # Images
 
