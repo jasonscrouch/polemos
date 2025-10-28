@@ -22,6 +22,7 @@ export default function SignUp() {
     const password = 'password';
     const email = 'email';
 
+    // todo: export types like this because SignIn needs it too
     type User = {
         email: string;
         id: number;
@@ -38,10 +39,10 @@ export default function SignUp() {
 
     type AddUserMutation = {
         addUser: {
-                message : string;
-                success: boolean;
-                user: User;
-            }
+            message : string;
+            success: boolean;
+            user: User;
+        }
     }
 
     const ADD_USER: TypedDocumentNode<AddUserMutation, AddUserMutationVariables> = gql`
@@ -86,6 +87,8 @@ export default function SignUp() {
                 // todo: else, inform the user of the error message from GraphQL
             });
     }
+
+    // todo: why is the error not working?
 
     return (
         <>
