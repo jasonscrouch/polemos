@@ -7,7 +7,7 @@ import NotFound from "./components/pages/NotFound";
 import About from "./components/pages/About";
 import SignIn from "./components/pages/SignIn";
 import SignUp from "./components/pages/SignUp";
-import { ApolloClient, HttpLink, InMemoryCache, gql } from "@apollo/client";
+import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import Help from "./components/pages/Help";
 

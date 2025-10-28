@@ -6,8 +6,6 @@ import { AuthnContext } from '../contexts/AuthnContext';
 
 export default function NavigationBar() {
 
-    // todo: need to get a user signed in to test off canvas
-
     const styleContext = useContext(StyleContext);
     const themeIcon = `bi bi-${!styleContext.isLight() ? 'sun' : 'moon'}-fill`;
     const themeTitle = `Swtich to ${!styleContext.isLight() ? 'Dark' : 'Light'} Mode`;
@@ -16,18 +14,26 @@ export default function NavigationBar() {
 
     const authnContext = useContext(AuthnContext);
 
+    function handleSignOut() {
+        const signedOut = authnContext.signOut();
+
+        if (signedOut) {
+            setShowOffCanvas(false);
+        }
+    }
+
   return (
     <>
         <Navbar className="bg-body-secondary mb-2">
             <Container>
                 <Nav>
-                    <NavLink className="navbar-brand" to="/" title="Home">Polemos</NavLink>
+                    <NavLink className="navbar-brand fw-bold text-body-emphasis" to="/" title="Home">Polemos</NavLink>
                 </Nav>
                 <Container className='d-flex justify-content-end'>
                     <Button 
                         onClick={() => styleContext.setTheme()} 
                         variant='outline-secondary' 
-                        className='rounded-circle me-2'
+                        className='rounded-circle me-2 border-0'
                         title={themeTitle}
                         >
                             <i className={`${themeIcon} text-body`}></i>
@@ -37,9 +43,12 @@ export default function NavigationBar() {
                         onClick={() => setShowOffCanvas(true)}
                         title="Me"
                         >
-                            {authnContext.authnUser.username}
+                            <i className="bi bi-person-circle text-body"></i>
                         </Button>
-                        : <Link className='btn btn-outline-primary' to='/signin' title="Sign In">Sign In</Link>
+                        : <>
+                            <Link className='btn btn-outline-success me-2' to='/signup' title="Sign Up">Sign Up</Link>
+                            <Link className='btn btn-primary' to='/signin' title="Sign In">Sign In</Link>
+                        </>
                     }
                 </Container>
             </Container>
@@ -49,15 +58,18 @@ export default function NavigationBar() {
             onHide={() => setShowOffCanvas(false)}
             placement="end"
             >
-            <Offcanvas.Header closeButton>
-                <Offcanvas.Title>
-                    Polemos
-                </Offcanvas.Title>
-            </Offcanvas.Header>
+            <Offcanvas.Header closeButton></Offcanvas.Header>
             <Offcanvas.Body>
-                <Link to="/combatants" onClick={() => setShowOffCanvas(false)}>Combatants</Link>
-                <Link to="/battle" onClick={() => setShowOffCanvas(false)}>Battle</Link>
-                <Link to="/statistics" onClick={() => setShowOffCanvas(false)}>Statistics</Link>
+                <div className="fw-bold text-body-emphasis mb-1">Me</div> 
+                <div>username: <span className='fw-bold'>{authnContext.authnUser?.username}</span></div>
+                <div>email: <span className='fw-bold'>{authnContext.authnUser?.email}</span></div>
+                <hr />
+                <div className="fw-bold text-body-emphasis mb-1">Pages</div> 
+                <NavLink to="/combatants" className="nav-link" onClick={() => setShowOffCanvas(false)}>Combatants</NavLink>
+                <NavLink to="/battle" className="nav-link" onClick={() => setShowOffCanvas(false)}>Battle</NavLink>
+                <NavLink to="/statistics" className="nav-link" onClick={() => setShowOffCanvas(false)}>Statistics</NavLink>
+                <hr />
+                <Button variant='secondary' onClick={() => handleSignOut()} >Sign Out</Button>
             </Offcanvas.Body>
         </Offcanvas>
     </>

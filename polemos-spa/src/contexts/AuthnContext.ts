@@ -8,14 +8,13 @@ export interface ApplicationUser {
 
 type AuthnContext = {
     authnUser?: ApplicationUser,
-    signIn: () => void,
-    signOut: () => void
+    signIn: (id: number, username: string, email: string) => boolean,
+    signOut: () => boolean
 }
 
-export const AuthnContext = createContext<AuthnContext>(
-    {
+export const AuthnContext = createContext<AuthnContext>({
         authnUser: undefined,
-        signIn: () => {},
-        signOut: () => {}
+        signIn: () => false,
+        signOut: () => false
     }
 );

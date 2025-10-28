@@ -1,12 +1,12 @@
 import { Alert, Container, Form, Row, Col, Button, Image } from "react-bootstrap";
 import { Link } from "react-router";
-import { useContext, useState } from "react";
+import { useState } from "react";
 //import { AuthnContext } from "../../contexts/AuthnContext";
 
 export default function SignIn() {
 
     // todo: enable this to actually work
-    const [isValid, setIsValid] = useState<boolean>(true);
+    //const [isValid, setIsValid] = useState<boolean>(true);
     const [isValidated, setIsValidated] = useState<boolean>(false);
 
     //const authnContext = useContext(AuthnContext);
@@ -25,9 +25,9 @@ export default function SignIn() {
 
         // todo: make this work
 
-        const data = new FormData(form);
-        const name = data.get(username);
-        const pass = data.get(password);
+        // const data = new FormData(form);
+        // const name = data.get(username);
+        // const pass = data.get(password);
 
         // if this method returns false, then show the alert
         //authnContext.signIn(name, pass);
@@ -35,7 +35,7 @@ export default function SignIn() {
 
     return ( 
         <>
-            <Alert show={!isValid} variant="danger">  
+            <Alert variant="danger">  
                 <Alert.Heading>Something isn't quite right!</Alert.Heading>
                 <p>Please enter your {username} and {password} again.</p>
                 <p>Need <Link to="/help" className="alert-link">help</Link>?</p>
@@ -64,11 +64,6 @@ export default function SignIn() {
                     </Col>
                 </Row>
             </Form>
-            <hr className="my-4" />
-            <Container className="text-center"> 
-                <p className="">New here?</p> 
-                <Link to="/signup" className="btn btn-danger">Sign Up</Link>
-            </Container>
         </>
     );
 }

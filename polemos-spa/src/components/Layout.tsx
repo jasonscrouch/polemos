@@ -1,6 +1,6 @@
 import NavigationBar from "./NavigationBar";
 import { Outlet } from "react-router";
-import { Container, Button, Nav, Navbar, Offcanvas } from 'react-bootstrap';
+import { Container, Nav, Navbar } from 'react-bootstrap';
 import { NavLink } from 'react-router';
 
 export default function Layout()

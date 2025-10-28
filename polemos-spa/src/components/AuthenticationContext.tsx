@@ -21,22 +21,30 @@ export default function AuthenticationContext({ children }: Props) {
         }
     });
 
-    function signIn() {
-        // todo: implement
+    function signIn(id: number, username: string, email: string): boolean {
+       
+        if (authnUser) {
+            return true;
+        }
 
-        // ensure that a user is not already signed in by checking localStorage
-        // if so, then do nothing
-        // if not, then useEffect to check that username/email and password match
-        // if not, then error
-        // if so, then cache data in localStorage
+        // todo: we'll want something more robust here
+
+        const user: ApplicationUser = { id: id, username: username, email: email };
+
+        localStorage.setItem(key, JSON.stringify(user));
+        setAuthnUser(user);
+        return true;
     }
 
     function signOut() {
-        // todo: implement
+        
+        if (!authnUser) {
+            return true;
+        }
 
-        // check that a user is actually signed in (in cache)
-
+        localStorage.removeItem(key);
         setAuthnUser(undefined);
+        return true;
     }
 
     return (
