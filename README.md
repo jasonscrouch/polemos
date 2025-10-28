@@ -15,12 +15,20 @@ A battle simulation in which a user creates combatants and battles them.
 
 # Technologies Used
 
+## Client
+
 - React
 - React Router
 - Vite
 - Bootstrap
 - Bootstrap Icons
+- Apollo Client
+- GraphQL
+
+## Server
+
 - EntityFramework
+- HotChocolate
 
 # Languages Used
 
@@ -45,17 +53,19 @@ Docker Desktop and the VS Code Containers extension are encouraged. These will m
 
 ## API
 
-When developing the API, use [Applo Sandbox](https://studio.apollographql.com/sandbox/explorer), making sure to enable CORS in the `Program.cs`. This will help as you develop GraphQL operations and user HotChocolate.
+When developing the API, use [Apollo Sandbox](https://studio.apollographql.com/sandbox/explorer), making sure to enable CORS in the `Program.cs`. This will help as you develop GraphQL operations and use HotChocolate.
 
 # Special Thanks
 
-I'd like to thank [DevIQ](https://deviq.com/) for help with the Respository Pattern and the Specification Pattern. [Intro to GraphQL with .NET (C#) & Hot Chocolate](https://www.apollographql.com/tutorials/intro-hotchocolate/01-overview-setup) for help with GraphQL and HotChocolate.
+I'd like to thank [DevIQ](https://deviq.com/) for help with the Respository Pattern and the Specification Pattern. [Intro to GraphQL with .NET (C#) & Hot Chocolate](https://www.apollographql.com/tutorials/intro-hotchocolate/01-overview-setup) for help with GraphQL and HotChocolate. [Introduction to Apollo Client](https://www.apollographql.com/docs/react) for the Apollo Client walkthrough.
 
 # Images
 
 All images from https://stock.adobe.com/
 
 ---
+
+# ToDo
 
 Additional requirements 6. Your “boss” would like the simulation system to support other types of battles in the
 future.
