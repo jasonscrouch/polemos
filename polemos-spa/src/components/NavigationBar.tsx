@@ -7,8 +7,8 @@ import { AuthnContext } from '../contexts/AuthnContext';
 export default function NavigationBar() {
 
     const styleContext = useContext(StyleContext);
-    const themeIcon = `bi bi-${!styleContext.isLight() ? 'sun' : 'moon'}-fill`;
-    const themeTitle = `Swtich to ${!styleContext.isLight() ? 'Dark' : 'Light'} Mode`;
+    const themeIcon = `bi bi-${!styleContext.isDark() ? 'moon' : 'sun'}-fill`;
+    const themeTitle = `Swtich to ${!styleContext.isDark() ? 'Light' : 'Dark'} Mode`;
 
     const [showOffCanvas, setShowOffCanvas] = useState(false);
 

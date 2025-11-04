@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { StyleContext } from "../contexts/StyleContext";
+import useLocalStorage from "../hooks/LocalStorage";
 
 interface Props {
     children: React.ReactNode;
@@ -12,7 +13,12 @@ export default function ThemeContext({children}: Props) {
     const dark = 'dark';
     const themeSelector = 'data-bs-theme';
 
-    const [appTheme, setAppTheme] = useState<string>(localStorage.getItem(key) || light);
+    const [appTheme, setAppTheme] = useLocalStorage<string>(key, light);
+
+    if (!getTheme()) {
+            
+        setTheme(appTheme);
+    }
 
     function getThemeElement() {
         return document.getElementById('theme') as HTMLElement;
@@ -26,23 +32,17 @@ export default function ThemeContext({children}: Props) {
         return getThemeElement().setAttribute(themeSelector, theme);
     }
 
-    function isLight() {
-        return appTheme === light;
+    function isDark() {
+        return appTheme === dark;
     }
 
     function handleSetTheme() {
-        const theme = isLight() ? dark 
-            : light; 
+        const theme = isDark() ? light 
+            : dark; 
 
         setAppTheme(theme);
 
         return theme;
-    }
-
-    if (appTheme === dark 
-        && !getTheme()) {
-            
-        setTheme(appTheme);
     }
 
     useEffect(() => {
@@ -50,13 +50,11 @@ export default function ThemeContext({children}: Props) {
             return;
         }
 
-        localStorage.setItem(key, appTheme);
-
         setTheme(appTheme);
     }, [appTheme]);
 
     return (
-        <StyleContext value={{theme: appTheme, setTheme: handleSetTheme, isLight: isLight}}>
+        <StyleContext value={{theme: appTheme, setTheme: handleSetTheme, isDark: isDark}}>
             {children}
         </StyleContext>
     );

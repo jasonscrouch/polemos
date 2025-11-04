@@ -64,6 +64,7 @@ When developing the API, use [Apollo Sandbox](https://studio.apollographql.com/s
 - [DevIQ](https://deviq.com/) for help with the Respository and Specification Pattern.
 - [Intro to GraphQL with .NET (C#) & Hot Chocolate](https://www.apollographql.com/tutorials/intro-hotchocolate/01-overview-setup) for explaining GraphQL and HotChocolate.
 - [Introduction to Apollo Client](https://www.apollographql.com/docs/react) for the Apollo Client walkthrough.
+- [Robin Wieruch](https://www.robinwieruch.de/) for an explanation of React and the `useLocalStorage` hook.
 
 # Images
 
