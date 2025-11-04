@@ -1,26 +1,17 @@
 import NavigationBar from "./NavigationBar";
 import { Outlet } from "react-router";
-import { Container, Nav, Navbar } from 'react-bootstrap';
-import { NavLink } from 'react-router';
+import { Container } from 'react-bootstrap';
+import Footer from "./Footer";
 
 export default function Layout()
 {
-    // todo: move the bottom navbar to Footer.tsx
-
     return (
         <>
             <NavigationBar />
             <Container>
                 <Outlet />
             </Container>
-            <Navbar className="bg-body-secondary mt-2">
-                <Container>
-                    <Nav>
-                        <NavLink to="/about" className="nav-link">About</NavLink>
-                        <NavLink to="/help" className="nav-link">Help</NavLink>
-                    </Nav>
-                </Container>
-            </Navbar>
+            <Footer />
         </>
     );
 }
