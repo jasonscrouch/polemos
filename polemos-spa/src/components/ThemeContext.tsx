@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import type { JSX } from "react";
 import { StyleContext } from "../contexts/StyleContext";
 import useLocalStorage from "../hooks/LocalStorage";
 
@@ -6,52 +6,47 @@ interface Props {
     children: React.ReactNode;
 }
 
-export default function ThemeContext({children}: Props) {
+export default function ThemeContext({children}: Props) : JSX.Element {
 
-    const key = 'theme';
-    const light = 'light';
-    const dark = 'dark';
-    const themeSelector = 'data-bs-theme';
+    const theme = "theme";
+    const light = "light";
+    const dark = "dark";
+    const themeSelector = "data-bs-theme";
 
-    const [appTheme, setAppTheme] = useLocalStorage<string>(key, light);
+    const [appTheme, setAppTheme] = useLocalStorage<string>(theme, light);
 
     if (!getTheme()) {
             
         setTheme(appTheme);
     }
 
-    function getThemeElement() {
-        return document.getElementById('theme') as HTMLElement;
+    function getThemeElement() : HTMLElement {
+        return document.getElementById(theme) as HTMLElement;
     }
 
-    function getTheme() {
+    function getTheme() : string | null {
         return getThemeElement().getAttribute(themeSelector);
     }
 
-    function setTheme(theme: string) {
-        return getThemeElement().setAttribute(themeSelector, theme);
-    }
-
-    function isDark() {
-        return appTheme === dark;
-    }
-
-    function handleSetTheme() {
-        const theme = isDark() ? light 
-            : dark; 
-
-        setAppTheme(theme);
+    function setTheme(theme: string) : string {
+        getThemeElement().setAttribute(themeSelector, theme);
 
         return theme;
     }
 
-    useEffect(() => {
-        if (appTheme === getTheme()) {
-            return;
-        }
+    function isDark() : boolean {
+        return appTheme === dark;
+    }
 
-        setTheme(appTheme);
-    }, [appTheme]);
+    function handleSetTheme() : "light" | "dark" {
+        const theme = isDark() ? light 
+            : dark; 
+
+        setTheme(theme);
+        setAppTheme(theme);
+
+        return theme;
+    }
 
     return (
         <StyleContext value={{theme: appTheme, setTheme: handleSetTheme, isDark: isDark}}>
