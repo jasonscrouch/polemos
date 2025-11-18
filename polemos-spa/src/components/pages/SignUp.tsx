@@ -1,9 +1,11 @@
 import { gql, type TypedDocumentNode } from "@apollo/client";
 import { useMutation } from "@apollo/client/react";
 import { useContext, useState } from "react";
-import { Alert, Button, Col, Container, Form, Image, Row, Spinner } from "react-bootstrap";
+import { Alert, Col, Container, Form, Image, Row } from "react-bootstrap";
 import { Link, useNavigate } from "react-router";
 import { AuthnContext } from "../../contexts/AuthnContext";
+import FormInput from "../helpers/FormInput";
+import SubmitButton from "../helpers/SubmitButton";
 
 export default function SignUp() {
 
@@ -104,25 +106,16 @@ export default function SignUp() {
             <Form className="needs-validation" validated={isValidated} noValidate onSubmit={(e) => handleSubmit(e)}> 
                 <Row className="g-3"> 
                     <Col lg="12"> 
-                        <label htmlFor="username" className="form-label">Username</label> 
-                        <div className="input-group has-validation"> 
-                            <span className="input-group-text">@</span> 
-                            <input type="text" className="form-control" id={username} name={username} required />
-                            <Container className="invalid-feedback">Please enter a {username}</Container>
-                        </div>
+                        <FormInput label="Username" name={username} type="text" isRequired={true} invalidMessage="Please enter a username" shouldAutoFocus={true} />
                     </Col>
                     <Col lg="12"> 
-                        <label htmlFor="email" className="form-label">Email</label> 
-                        <input type="email" className="form-control" id={email} name={email} required/> 
-                        <Container className="invalid-feedback">Please enter a valid {email} address</Container> 
+                        <FormInput label="Email" name={email} type="email" isRequired={true} invalidMessage="Please enter a valid email" shouldAutoFocus={false} />
                     </Col>
                     <Col lg="12">
-                        <label htmlFor="email" className="form-label">Password</label> 
-                        <input type="password" className="form-control" id={password} name={password}  required/> 
-                        <Container className="invalid-feedback">Please enter a {password}</Container> 
+                        <FormInput label="Password" name={password} type="password" isRequired={true} invalidMessage="Please enter a password" shouldAutoFocus={false} />
                     </Col>
                     <Col>
-                        <Button variant="success" className="w-100" type="submit">{loading && <Spinner size="sm" className="me-2"/>}Sign Up</Button> 
+                        <SubmitButton text="Sign Up" variant="success" isLoading={loading} />
                     </Col>
                 </Row>
             </Form>

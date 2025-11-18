@@ -10,6 +10,7 @@ import SignUp from "./components/pages/SignUp";
 import { ApolloClient, HttpLink, InMemoryCache } from "@apollo/client";
 import { ApolloProvider } from "@apollo/client/react";
 import Help from "./components/pages/Help";
+import Combatants from "./components/pages/Combatants";
 
 export default function App()
 {
@@ -26,10 +27,11 @@ export default function App()
             <Routes>
               <Route path="/" element={ <Layout />}>
                 <Route index element={ <Home/> } />
-                <Route path="/about" element={ <About />} />
-                <Route path="/help" element={ <Help /> }/>
-                <Route path="/signin" element={ <SignIn /> }></Route>
-                <Route path="/signup" element={ <SignUp />}></Route>
+                <Route path="about" element={ <About />} />
+                <Route path="help" element={ <Help /> }/>
+                <Route path="signin" element={ <SignIn /> } />
+                <Route path="signup" element={ <SignUp />} />
+                <Route path="combatants" element={ <Combatants /> }/>
               </Route>
               <Route path="/*" element={<NotFound />}/>
             </Routes>

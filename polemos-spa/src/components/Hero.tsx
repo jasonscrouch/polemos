@@ -3,7 +3,6 @@ import { Container } from "react-bootstrap";
 import { Link } from "react-router";
 
 export interface Props {
-    key?: number
     title: string,
     lead: string,
     url: string,
@@ -12,10 +11,10 @@ export interface Props {
     imageAlt: string
 }
 
-export function Hero({key, title, lead, url, buttonName, imageSrc, imageAlt} : Props) : JSX.Element {
+export function Hero({title, lead, url, buttonName, imageSrc, imageAlt} : Props) : JSX.Element {
     
     return(
-        <Container key={key ?? 1} className="p-4 hero rounded-2 m-2">
+        <Container className="p-4 hero rounded-2 m-2">
             <div className="row align-items-center g-5 py-3"> 
                 <div className="col-lg-6"> 
                     <div className="display-5 fw-bold text-body-emphasis mb-1">{title}</div> 

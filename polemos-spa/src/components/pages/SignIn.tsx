@@ -1,11 +1,13 @@
-import { Alert, Container, Form, Row, Col, Button, Image, Spinner } from "react-bootstrap";
+import { Alert, Container, Form, Row, Col, Image } from "react-bootstrap";
 import { Link, useNavigate } from "react-router";
-import { useContext, useState } from "react";
+import { useContext, useState, type JSX } from "react";
 import { AuthnContext } from "../../contexts/AuthnContext";
 import { useLazyQuery } from "@apollo/client/react";
 import { gql, type TypedDocumentNode } from "@apollo/client";
+import FormInput from "../helpers/FormInput";
+import SubmitButton from "../helpers/SubmitButton";
 
-export default function SignIn() {
+export default function SignIn(): JSX.Element {
 
     const [isValidated, setIsValidated] = useState<boolean>(false);
 
@@ -111,20 +113,13 @@ export default function SignIn() {
             <Form className="needs-validation" validated={isValidated} noValidate onSubmit={(e) => handleSubmit(e)}> 
                 <Row className="g-3"> 
                     <Col lg="12"> 
-                        <label htmlFor="username" className="form-label">Username</label> 
-                        <div className="input-group has-validation"> 
-                            <span className="input-group-text">@</span> 
-                            <input type="text" className="form-control" id={username} name={username} required />
-                            <Container className="invalid-feedback">Please enter a {username}</Container>
-                        </div>
+                        <FormInput label="Username" name={username} type="text" isRequired={true} invalidMessage="Please enter a username" shouldAutoFocus={true} />
                     </Col>
                     <Col lg="12">
-                        <label htmlFor="email" className="form-label">Password</label> 
-                        <input type="password" className="form-control" id={password} name={password} required/> 
-                        <Container className="invalid-feedback">Please enter a {password}</Container> 
+                        <FormInput label="Password" name={password} type="password" isRequired={true} invalidMessage="Please enter a password" shouldAutoFocus={false} />
                     </Col>
                     <Col>
-                        <Button className="w-100" type="submit">{loading && <Spinner size="sm" className="me-2"/>}Sign In</Button> 
+                        <SubmitButton text="Sign In" variant="primary" isLoading={loading} />
                     </Col>
                 </Row>
             </Form>
