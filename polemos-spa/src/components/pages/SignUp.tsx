@@ -2,10 +2,11 @@ import { gql, type TypedDocumentNode } from "@apollo/client";
 import { useMutation } from "@apollo/client/react";
 import { useContext, useState } from "react";
 import { Alert, Col, Container, Form, Image, Row } from "react-bootstrap";
-import { Link, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { AuthnContext } from "../../contexts/AuthnContext";
 import FormInput from "../helpers/FormInput";
 import SubmitButton from "../helpers/SubmitButton";
+import type { AddUserMutation, AddUserMutationVariables } from "../../types/Mutation/AddUser";
 
 export default function SignUp() {
 
@@ -23,29 +24,6 @@ export default function SignUp() {
     const username = 'username';
     const password = 'password';
     const email = 'email';
-
-    // todo: export types like this because SignIn needs it too
-    type User = {
-        email: string;
-        id: number;
-        name: string
-    };
-
-    type AddUserMutationVariables = {
-        input: {
-            email: string;
-            password: string;
-            username: string;
-        }
-    }
-
-    type AddUserMutation = {
-        addUser: {
-            message : string;
-            success: boolean;
-            user: User;
-        }
-    }
 
     const ADD_USER: TypedDocumentNode<AddUserMutation, AddUserMutationVariables> = gql`
         mutation AddUser($input: AddUserInput!) {
@@ -68,29 +46,41 @@ export default function SignUp() {
 
         const form = e.currentTarget;
 
+        setIsValidated(true);
+
         if (!form.checkValidity()) {
-            setIsValidated(true);
             return;
         }
 
         const formData = new FormData(form);
-        const formUsername = formData.get(username) as string;
-        const formPassword = formData.get(password) as string;
-        const formEmail = formData.get(email) as string;
+        const formUsername = formData.get(username)?.toString();
+        const formEmail = formData.get(email)?.toString();
+        const formPassword = formData.get(password)?.toString();
+
+        if (!formUsername 
+            || !formEmail
+            || !formPassword
+        ) {
+            return;
+        }
 
         addUserMutation({ variables: { input: { email: formEmail, password: formPassword, username: formUsername} } })
             .then((result) => {
                 
                 if (result.data?.addUser.success) {
-                    authnContext.signIn(result.data.addUser.user.id, result.data.addUser.user.name, result.data.addUser.user.email);
-                    navigate('/');
-                }
 
-                // todo: else, inform the user of the error message from GraphQL
+                    const didSignIn = authnContext.signIn(result.data.addUser.user.id, result.data.addUser.user.name, result.data.addUser.user.email);
+
+                    if (didSignIn) {
+                        navigate('/');
+                    } else {
+
+                        // todo: create and error page with ability for user to email help
+                        navigate('/error');
+                    }
+                }
             });
     }
-
-    // todo: why is the error not working?
 
     return (
         <>
@@ -98,10 +88,12 @@ export default function SignUp() {
                 <Image className="d-block mx-auto mb-4" src="/greek_helmet.png" alt="" width="72" height="57" /> 
                 <p className="display-6 fw-bold text-body-emphasis">Sign Up for Polemos</p> 
             </Container>
-            { error && <Alert variant="danger">  
+            {<Alert variant="danger" show={error !== undefined}>  
                 <Alert.Heading>Something isn't right!</Alert.Heading>
-                <p>Please enter a {username}, {email}, and {password} again</p>
-                <p>Need <Link to="/help" className="alert-link">help</Link>?</p>
+                <p>Sign Up failed with the following error: '{error?.message}'</p>
+                <p>
+                    Contact <a className="alert-link" href="mailto:help@polemos.com?subject=Error">Help</a> for Support
+                </p>
             </Alert> }
             <Form className="needs-validation" validated={isValidated} noValidate onSubmit={(e) => handleSubmit(e)}> 
                 <Row className="g-3"> 

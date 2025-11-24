@@ -15,6 +15,6 @@ export default function FormInput({ label, name, type, isRequired, invalidMessag
     return <Form.Group>
         <Form.Label htmlFor={name} className="form-label">{label}</Form.Label> 
         <Form.Control type={type} className="form-control" id={name} name={name} required={isRequired} autoFocus={shouldAutoFocus}/> 
-        {isRequired && <Form.Control.Feedback className="invalid-feedback">{invalidMessage}</Form.Control.Feedback>}
+        {isRequired && <Form.Control.Feedback className="invalid-feedback" type="invalid">{invalidMessage}</Form.Control.Feedback>}
     </Form.Group>;
 }

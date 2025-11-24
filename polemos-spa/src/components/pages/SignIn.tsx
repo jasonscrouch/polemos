@@ -6,6 +6,7 @@ import { useLazyQuery } from "@apollo/client/react";
 import { gql, type TypedDocumentNode } from "@apollo/client";
 import FormInput from "../helpers/FormInput";
 import SubmitButton from "../helpers/SubmitButton";
+import type { GetUserQuery, GetUserQueryVariables } from "../../types/Query/GetUser";
 
 export default function SignIn(): JSX.Element {
 
@@ -32,22 +33,7 @@ export default function SignIn(): JSX.Element {
         }
     `;
 
-    const [getIsPasswordValid, { loading, error }] = useLazyQuery(GET_IS_PASSWORD_VALID);
-
-    // todo: export types like this because SignUp needs it too
-    type User = {
-        email: string;
-        id: number;
-        name: string
-    };  
-
-    type GetUserQuery = {
-        user: User;
-    }
-
-    type GetUserQueryVariables = {
-        username: string;
-    }
+    const [getIsPasswordValid, { loading, error }] = useLazyQuery(GET_IS_PASSWORD_VALID); 
 
     const GET_USER: TypedDocumentNode<GetUserQuery, GetUserQueryVariables> = gql`
         query User($username: String!) {
