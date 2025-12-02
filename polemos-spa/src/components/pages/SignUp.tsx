@@ -52,6 +52,7 @@ export default function SignUp() {
             return;
         }
 
+        // todo: create formData utility that returns '' if null or undefined
         const formData = new FormData(form);
         const formUsername = formData.get(username)?.toString();
         const formEmail = formData.get(email)?.toString();
@@ -59,8 +60,7 @@ export default function SignUp() {
 
         if (!formUsername 
             || !formEmail
-            || !formPassword
-        ) {
+            || !formPassword) {
             return;
         }
 
@@ -75,7 +75,7 @@ export default function SignUp() {
                         navigate('/');
                     } else {
 
-                        // todo: create and error page with ability for user to email help
+                        // todo: create an error page with ability for user to email help
                         navigate('/error');
                     }
                 }

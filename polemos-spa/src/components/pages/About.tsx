@@ -5,7 +5,7 @@ export default function About() {
     // todo: a lot of similarities between this page and Help. Refactor.
 
     return(
-        <div className="d-flex align-items-center text-center vh-100">
+        <div className="d-flex align-items-center text-center">
             <Container>
                 <Container className="display-5 fw-bold text-body-emphasis mb-1">What is Polemos?</Container>
                 <Container className="lead">'Polemos' is the English transliteration of the Greek word πόλεμος</Container>

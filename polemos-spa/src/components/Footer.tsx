@@ -4,7 +4,7 @@ import { NavLink } from "react-router";
 export default function Footer() {
 
     return(
-            <Navbar className="bg-body-secondary mt-2">
+            <Navbar className="bg-body-secondary mt-auto">
                 <Container>
                     <Nav>
                         <NavLink to="/about" className="nav-link">About</NavLink>

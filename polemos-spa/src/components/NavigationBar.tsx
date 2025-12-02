@@ -24,7 +24,7 @@ export default function NavigationBar() {
 
   return (
     <>
-        <Navbar className="bg-body-secondary mb-2">
+        <Navbar className="bg-body-secondary mb-auto">
             <Container>
                 <Nav>
                     <NavLink className="navbar-brand fw-bold text-body-emphasis" to="/" title="Home">Polemos</NavLink>

@@ -19,6 +19,8 @@ export default function App()
     cache: new InMemoryCache(),
   });
 
+  //todo: create static class for AppUrls so that "/" is AppUrls.Home, etc.
+
   return(
     <ApolloProvider client={client}>
       <AuthenticationContext>
