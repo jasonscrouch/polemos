@@ -1,6 +1,6 @@
 using polemos_api.Data.Models;
 
-namespace polemos_api.Data.Specifications.UserSpecifications;
+namespace polemos_api.Data.Specifications.User;
 
 public class UserByNameSpecification : BaseSpecification<ApplicationUser>
 {

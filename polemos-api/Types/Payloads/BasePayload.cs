@@ -10,4 +10,11 @@ public abstract class BasePayload
 
     [GraphQLDescription("Human-readable message for the UI.")]
     public string Message { get; set; }
+
+    public BasePayload(int code, bool success, string message)
+    {
+        Code = code;
+        Success = success;
+        Message = message;
+    }
 }

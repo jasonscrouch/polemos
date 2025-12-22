@@ -1,7 +1,7 @@
 using Microsoft.AspNetCore.Identity;
 using polemos_api.Data.Models;
 using polemos_api.Data.Repository;
-using polemos_api.Data.Specifications.UserSpecifications;
+using polemos_api.Data.Specifications.User;
 
 namespace polemos_api.Types;
 
@@ -16,13 +16,9 @@ public class Query
     }
 
     [GraphQLDescription("Determines whether or not the username and password combination is valid")]
-    public async Task<bool> GetIsPasswordValid(string username, string password, IRepository<ApplicationUser> userRepository)
+    public async Task<bool> GetIsPasswordValid(string username, string password, PasswordHasher<ApplicationUser> passwordHasher, IRepository<ApplicationUser> userRepository)
     {
         var user = await userRepository.SingleAsync(new UserByNameSpecification(username));
-
-        // todo: can we use DI for this? It's in the mutation too.
-        var passwordHasher = new PasswordHasher<ApplicationUser>();
-
         var verified = passwordHasher.VerifyHashedPassword(user, user.Password, password);
 
         return verified == PasswordVerificationResult.Success;

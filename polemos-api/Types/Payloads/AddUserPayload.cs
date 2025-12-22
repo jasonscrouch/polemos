@@ -7,11 +7,8 @@ public class AddUserPayload : BasePayload
     public User? User { get; set; }
 
     public AddUserPayload(int code, bool success, string message, User? user)
+        : base(code, success, message)
     {
-        Code = code;
-        Success = success;
-        Message = message;
-
         if (user != null)
         {
             User = user;

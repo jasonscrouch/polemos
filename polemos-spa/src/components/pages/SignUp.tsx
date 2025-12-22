@@ -88,13 +88,13 @@ export default function SignUp() {
                 <Image className="d-block mx-auto mb-4" src="/greek_helmet.png" alt="" width="72" height="57" /> 
                 <p className="display-6 fw-bold text-body-emphasis">Sign Up for Polemos</p> 
             </Container>
-            {<Alert variant="danger" show={error !== undefined}>  
+            <Alert variant="danger" show={error !== undefined}>  
                 <Alert.Heading>Something isn't right!</Alert.Heading>
                 <p>Sign Up failed with the following error: '{error?.message}'</p>
                 <p>
                     Contact <a className="alert-link" href="mailto:help@polemos.com?subject=Error">Help</a> for Support
                 </p>
-            </Alert> }
+            </Alert>
             <Form className="needs-validation" validated={isValidated} noValidate onSubmit={(e) => handleSubmit(e)}> 
                 <Row className="g-3"> 
                     <Col lg="12"> 
