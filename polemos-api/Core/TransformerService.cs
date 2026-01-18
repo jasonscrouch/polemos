@@ -11,7 +11,7 @@ internal class TransformerService : ICombatantService
         options(_options);
     }
 
-    public Combatant Create(string name)
+    public Combatant Create(int userId, string name)
     {
         if (string.IsNullOrEmpty(name))
         {
@@ -22,6 +22,7 @@ internal class TransformerService : ICombatantService
 
         return new Combatant()
         {
+            User_SK = userId,
             Name = name,
             Strength = random.Next(_options.Minimum, _options.Maximum),
             Dexterity = random.Next(_options.Minimum, _options.Maximum),

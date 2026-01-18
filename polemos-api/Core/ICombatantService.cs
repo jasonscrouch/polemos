@@ -4,5 +4,5 @@ namespace polemos_api.Core;
 
 public interface ICombatantService
 {
-    Combatant Create(string name);
+    Combatant Create(int userId, string name);
 }

@@ -12,9 +12,11 @@ interface Props {
 
 export default function FormInput({ label, name, type, isRequired, invalidMessage, shouldAutoFocus }: Props): JSX.Element {
 
-    return <Form.Group>
-        <Form.Label htmlFor={name} className="form-label">{label}</Form.Label> 
-        <Form.Control type={type} className="form-control" id={name} name={name} required={isRequired} autoFocus={shouldAutoFocus}/> 
-        {isRequired && <Form.Control.Feedback className="invalid-feedback" type="invalid">{invalidMessage}</Form.Control.Feedback>}
-    </Form.Group>;
+    return (
+        <Form.Group>
+            <Form.Label htmlFor={name} className="form-label">{label}</Form.Label> 
+            <Form.Control type={type} className="form-control" id={name} name={name} required={isRequired} autoFocus={shouldAutoFocus}/> 
+            {isRequired && <Form.Control.Feedback className="invalid-feedback" type="invalid">{invalidMessage}</Form.Control.Feedback>}
+        </Form.Group>
+    );
 }

@@ -32,14 +32,15 @@ public class Mutation
         }
     }
 
-    public async Task<AddCombatantPayload> AddCombatant(string name, ICombatantService combatantService, IRepository<Data.Models.Combatant> combatantRepository)
+    //todo: this needs to take in an input variable that has a user_sk and a name
+    public async Task<AddCombatantPayload> AddCombatant(AddCombatantInput input, ICombatantService combatantService, IRepository<Data.Models.Combatant> combatantRepository)
     {
         try
         {
 
             //todo: if there is a user, then we need to associate that user with the combatant.
             //Otherwise, we can create it locally but not save it to the datebse
-            var combatant = combatantService.Create(name);
+            var combatant = combatantService.Create(input.UserId, input.Name);
 
             combatantRepository.Add(combatant);
             await combatantRepository.SaveChangesAsync();

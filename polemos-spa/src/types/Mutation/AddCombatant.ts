@@ -2,6 +2,7 @@ import type { Combatant } from "../Combatant";
 
 export type AddCombatantMutationVariables = {
     input: {
+        userId: number;
         name: string;
     }
 }
