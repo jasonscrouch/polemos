@@ -37,8 +37,26 @@ builder.Services.AddScoped<ICombatantService>((sp) => new TransformerService(opt
 
 var app = builder.Build();
 
+#region Adds Admin User
+
+var adminUser = new ApplicationUser()
+{
+    Email = "admin@polemos.com",
+    Name = "admin",
+    Password = "admin"
+};
+
+using (var scope = app.Services.CreateScope())
+{
+    var applicationUserRepository = scope.ServiceProvider.GetRequiredService<IRepository<ApplicationUser>>();
+    applicationUserRepository.Add(adminUser);
+    await applicationUserRepository.SaveChangesAsync();
+}
+
+#endregion
+
 app.UseCors();
 
 app.MapGraphQL();
 
-app.Run();
+await app.RunAsync();
