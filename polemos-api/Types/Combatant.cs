@@ -10,7 +10,7 @@ public class Combatant
 
     [ID]
     [GraphQLDescription("The ID of the combatant")]
-    public int Id { get; }
+    public int Id { get; set; }
 
     [GraphQLDescription("The name of the combatant")]
     public string Name { get; set; }

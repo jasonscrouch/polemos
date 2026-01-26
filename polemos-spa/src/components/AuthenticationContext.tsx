@@ -12,14 +12,14 @@ export default function AuthenticationContext({ children }: Props) {
 
     const [authnUser, setAuthnUser] = useLocalStorage<ApplicationUser | undefined>(key, undefined);
 
-    function signIn(id: number, username: string, email: string): boolean {
+    function signIn(id: string, username: string, email: string): boolean {
        
         if (authnUser) {
             return true;
         }
 
         const user: ApplicationUser = { 
-            id: typeof id == "string" ? Number.parseInt(id) : id, 
+            id: Number.parseInt(id), 
             username: username, 
             email: email 
         };

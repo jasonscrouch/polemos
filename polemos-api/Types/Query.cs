@@ -15,6 +15,14 @@ public class Query
         return new User(user.User_SK, user.Name, user.Email);
     }
 
+    [GraphQLDescription("Gets list of combatants by user")]
+    public async Task<IEnumerable<Combatant>> GetCombatants(int id, IRepository<Data.Models.Combatant> combatantRepository)
+    {
+        var combatants = await combatantRepository.ListAsync(new CombatantsByUserSpecification(id));
+
+        return combatants.Select(x => new Combatant(x.Combatant_SK, x.Name));
+    }
+
     [GraphQLDescription("Determines whether or not the username and password combination is valid")]
     public async Task<bool> GetIsPasswordValid(string username, string password, PasswordHasher<ApplicationUser> passwordHasher, IRepository<ApplicationUser> userRepository)
     {

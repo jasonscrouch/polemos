@@ -8,7 +8,7 @@ export interface ApplicationUser {
 
 type AuthnContext = {
     authnUser?: ApplicationUser,
-    signIn: (id: number, username: string, email: string) => boolean,
+    signIn: (id: string, username: string, email: string) => boolean,
     signOut: () => boolean
 }
 

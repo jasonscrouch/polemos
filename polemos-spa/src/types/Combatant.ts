@@ -1,4 +1,4 @@
 export type Combatant = {
-        id: number;
+        id: string;
         name: string
     };

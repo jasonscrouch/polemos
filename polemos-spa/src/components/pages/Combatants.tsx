@@ -5,7 +5,7 @@ import FormInput from "../helpers/FormInput";
 import SubmitButton from "../helpers/SubmitButton";
 import type { AddCombatantMutation, AddCombatantMutationVariables } from "../../types/Mutation/AddCombatant";
 import { gql, type TypedDocumentNode } from "@apollo/client";
-import { useMutation } from "@apollo/client/react";
+import { useMutation, useQuery } from "@apollo/client/react";
 import type { Combatant } from "../../types/Combatant";
 import { Error } from "../helpers/Error";
 import { BrandText } from "../../utilities/css/Text";
@@ -40,6 +40,33 @@ export default function Combatants(): JSX.Element {
     `;
         
     const [ addCombatantMutation, { loading, error } ] = useMutation(ADD_COMBATANT)
+
+    type GetCombatantsQuery = {
+        combatants: Combatant[];
+    }
+
+    type GetCombatantsVariables = {
+        combatantsId: number;
+    }
+
+    const GET_COMBATANTS: TypedDocumentNode<GetCombatantsQuery, GetCombatantsVariables> = gql`
+        query Query($combatantsId: Int!) {
+            combatants(id: $combatantsId) {
+                id
+                name
+            }
+        }
+    `;
+    
+    //todo: this loads again and again and again. Ensure that items are only loaded once.
+    if (authnContext.authnUser) {
+        const {error, data} = useQuery(GET_COMBATANTS, { variables: { combatantsId: authnContext.authnUser.id } }); 
+
+        //todo: add error handling and loading state
+        if (!error && data?.combatants) {
+            combatants.push(...data.combatants);
+        }
+    }
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -145,10 +172,10 @@ export default function Combatants(): JSX.Element {
                 <p>But we can't guarantee that you won't lose it.</p>
             </Alert>
             {error != null && <Error show={error != null} message={error.message} /> }
-            <div>
+            <Row>
                 {combatants.length > 0 ? combatants.map((x, i) => createCombatantCard(i.toString(), x.name, ""))
                     : <div>Begin adding combatants</div>}
-            </div>
+            </Row>
         </>
     );
 }
