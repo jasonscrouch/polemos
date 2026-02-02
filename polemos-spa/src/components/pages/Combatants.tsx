@@ -3,12 +3,11 @@ import { AuthnContext } from "../../contexts/AuthnContext";
 import { Alert, Button, Col, Collapse, Form, Row } from "react-bootstrap";
 import FormInput from "../helpers/FormInput";
 import SubmitButton from "../helpers/SubmitButton";
-import type { AddCombatantMutation, AddCombatantMutationVariables } from "../../types/Mutation/AddCombatant";
-import { gql, type TypedDocumentNode } from "@apollo/client";
 import { useMutation, useQuery } from "@apollo/client/react";
-import type { Combatant } from "../../types/Combatant";
 import { Error } from "../helpers/Error";
 import { BrandText } from "../../utilities/css/Text";
+import { ADD_COMBATANT } from "../../Mutation/DocumentNodes/AddCombatant";
+import { GET_COMBATANTS } from "../../Query/DocumentNodes/GetCombatants";
 
 // todo: use this to test an authn user
 
@@ -21,52 +20,12 @@ export default function Combatants(): JSX.Element {
 
     const authnContext = useContext(AuthnContext);
     const [isValidated, setIsValidated] = useState<boolean>(false);
-    const [combatants, setCombatants] = useState<Combatant[]>([]);
     const [open, setOpen] = useState<boolean>(false);
 
     const name = "name";
-
-    const ADD_COMBATANT: TypedDocumentNode<AddCombatantMutation, AddCombatantMutationVariables> = gql`
-        mutation AddCombatant($input: AddCombatantInput!) {
-            addCombatant(input: $input) {
-                message
-                success
-                combatant {
-                    id
-                    name
-                }
-            }
-        }
-    `;
         
-    const [ addCombatantMutation, { loading, error } ] = useMutation(ADD_COMBATANT)
-
-    type GetCombatantsQuery = {
-        combatants: Combatant[];
-    }
-
-    type GetCombatantsVariables = {
-        combatantsId: number;
-    }
-
-    const GET_COMBATANTS: TypedDocumentNode<GetCombatantsQuery, GetCombatantsVariables> = gql`
-        query Query($combatantsId: Int!) {
-            combatants(id: $combatantsId) {
-                id
-                name
-            }
-        }
-    `;
-    
-    //todo: this loads again and again and again. Ensure that items are only loaded once.
-    if (authnContext.authnUser) {
-        const {error, data} = useQuery(GET_COMBATANTS, { variables: { combatantsId: authnContext.authnUser.id } }); 
-
-        //todo: add error handling and loading state
-        if (!error && data?.combatants) {
-            combatants.push(...data.combatants);
-        }
-    }
+    const [ addCombatantMutation, addCombatantResult ] = useMutation(ADD_COMBATANT);
+    const getCombatantsQuery = useQuery(GET_COMBATANTS, { variables: { combatantsId: authnContext.authnUser?.id ?? 0 } });
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -93,18 +52,11 @@ export default function Combatants(): JSX.Element {
             return;
         }
 
-        //todo:test
-        console.log(`Current logged in user is '${authnContext.authnUser.id}`);
-
         addCombatantMutation({ variables: { input: { userId: authnContext.authnUser.id,  name: formName} } })
             .then((result) => {
                 
                 if (result.data?.addCombatant.success) {
-                    // todo: add combatant to list of combatants
-                    console.log(result.data.addCombatant.combatant.name);
-                    
-                    combatants.push({ id: result.data.addCombatant.combatant.id, name: result.data.addCombatant.combatant.name });
-                    setCombatants(combatants);
+                    getCombatantsQuery.refetch();
                 }
             });
     }
@@ -159,7 +111,7 @@ export default function Combatants(): JSX.Element {
                                     <FormInput label="Name" name="name" type="text" isRequired={true} invalidMessage="Please enter a name" shouldAutoFocus={true} />
                                 </Col>
                                 <Col>
-                                    <SubmitButton text="Create" variant="primary" isLoading={loading} />
+                                    <SubmitButton text="Create" variant="primary" isLoading={addCombatantResult.loading} />
                                 </Col>
                             </Row>
                         </Form>
@@ -171,9 +123,12 @@ export default function Combatants(): JSX.Element {
                 <p>We'll keep your data locally.</p>
                 <p>But we can't guarantee that you won't lose it.</p>
             </Alert>
-            {error != null && <Error show={error != null} message={error.message} /> }
+            {addCombatantResult.error != null 
+                && <Error show={addCombatantResult.error != null} message={addCombatantResult.error.message} /> }
+            {getCombatantsQuery.error != null 
+                && <Error show={addCombatantResult.error != null} message={getCombatantsQuery.error.message} /> }
             <Row>
-                {combatants.length > 0 ? combatants.map((x, i) => createCombatantCard(i.toString(), x.name, ""))
+                { getCombatantsQuery.data && getCombatantsQuery.data.combatants.length > 0 ? getCombatantsQuery.data?.combatants.map((x, i) => createCombatantCard(i.toString(), x.name, ""))
                     : <div>Begin adding combatants</div>}
             </Row>
         </>

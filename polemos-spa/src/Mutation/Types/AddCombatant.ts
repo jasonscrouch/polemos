@@ -1,4 +1,4 @@
-import type { Combatant } from "../Combatant";
+import type { Combatant } from "../../types/Combatant";
 
 export type AddCombatantMutationVariables = {
     input: {

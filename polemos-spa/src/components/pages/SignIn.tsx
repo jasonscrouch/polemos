@@ -3,10 +3,10 @@ import { Link, useNavigate } from "react-router";
 import { useContext, useState, type JSX } from "react";
 import { AuthnContext } from "../../contexts/AuthnContext";
 import { useLazyQuery } from "@apollo/client/react";
-import { gql, type TypedDocumentNode } from "@apollo/client";
 import FormInput from "../helpers/FormInput";
 import SubmitButton from "../helpers/SubmitButton";
-import type { GetUserQuery, GetUserQueryVariables } from "../../types/Query/GetUser";
+import { GET_IS_PASSWORD_VALID } from "../../Query/DocumentNodes/GetIsPasswordValid";
+import { GET_USER } from "../../Query/DocumentNodes/GetUser";
 
 export default function SignIn(): JSX.Element {
 
@@ -18,33 +18,7 @@ export default function SignIn(): JSX.Element {
     const username = 'username';
     const password = 'password';
 
-    type GetIsPasswordValidQuery = {
-        isPasswordValid: boolean;
-    }
-
-    type GetIsPasswordValidVariables = {
-        username: string;
-        password: string;
-    }
-
-    const GET_IS_PASSWORD_VALID: TypedDocumentNode<GetIsPasswordValidQuery, GetIsPasswordValidVariables> = gql`
-        query Query($username: String!, $password: String!) {
-            isPasswordValid(username: $username, password: $password)
-        }
-    `;
-
     const [getIsPasswordValid, { loading, error }] = useLazyQuery(GET_IS_PASSWORD_VALID); 
-
-    const GET_USER: TypedDocumentNode<GetUserQuery, GetUserQueryVariables> = gql`
-        query User($username: String!) {
-            user(username: $username) {
-                email
-                id
-                name
-            }
-        }
-    `;
-
     const [ getUser ] = useLazyQuery(GET_USER);
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {

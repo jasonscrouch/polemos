@@ -6,7 +6,7 @@ import { useNavigate } from "react-router";
 import { AuthnContext } from "../../contexts/AuthnContext";
 import FormInput from "../helpers/FormInput";
 import SubmitButton from "../helpers/SubmitButton";
-import type { AddUserMutation, AddUserMutationVariables } from "../../types/Mutation/AddUser";
+import type { AddUserMutation, AddUserMutationVariables } from "../../Mutation/Types/AddUser";
 
 export default function SignUp() {
 
