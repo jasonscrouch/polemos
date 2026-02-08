@@ -9,6 +9,7 @@ import { BrandText } from "../../utilities/css/Text";
 import { ADD_COMBATANT } from "../../Mutation/DocumentNodes/AddCombatant";
 import { GET_COMBATANTS } from "../../Query/DocumentNodes/GetCombatants";
 import { CombatantCard } from "../helpers/CombatantCard";
+import { getFormDataOrDefault } from "../../utilities/FormData";
 
 // Clicking on each will bring up a modal with more details about each.
 // The modal allows you to move left and right through the cards.
@@ -43,7 +44,12 @@ export default function Combatants(): JSX.Element {
 
         // todo: create formData utility that returns '' if null or undefined
         const formData = new FormData(form);
-        const formName = formData.get(name)?.toString();
+        const formName = getFormDataOrDefault(formData, name);
+        const formIsFemale = getFormDataOrDefault(formData, 'isFemale') === 'on' ? true 
+            : false;
+
+        //todo
+        console.log(`Is Female is '${formIsFemale}'`);
 
         if (!formName) {
             return;
@@ -55,7 +61,7 @@ export default function Combatants(): JSX.Element {
             return;
         }
 
-        addCombatantMutation({ variables: { input: { userId: authnContext.authnUser.id,  name: formName} } })
+        addCombatantMutation({ variables: { input: { userId: authnContext.authnUser.id,  name: formName, isFemale: formIsFemale} } })
             .then((result) => {
                 
                 if (result.data?.addCombatant.success) {
@@ -92,7 +98,15 @@ export default function Combatants(): JSX.Element {
                         <Form className="needs-validation" validated={isValidated} noValidate onSubmit={(e) => handleSubmit(e)}> 
                             <Row className="g-3"> 
                                 <Col lg="12"> 
-                                    <FormInput label="Name" name="name" type="text" isRequired={true} invalidMessage="Please enter a name" shouldAutoFocus={true} />
+                                        <FormInput label="Name" name="name" type="text" isRequired={true} invalidMessage="Please enter a name" shouldAutoFocus={true} />
+                                            <Form.Group className="mt-2">
+                                                <Form.Check
+                                                type="switch"
+                                                id="isFemale"
+                                                name="isFemale"
+                                                label="Is Female"
+                                            />
+                                        </Form.Group>
                                 </Col>
                                 <Col>
                                     <SubmitButton text="Create" variant="primary" isLoading={addCombatantResult.loading} />
@@ -112,7 +126,7 @@ export default function Combatants(): JSX.Element {
             {getCombatantsQuery.error != null 
                 && <Error show={addCombatantResult.error != null} message={getCombatantsQuery.error.message} /> }
             <Row>
-                { getCombatantsQuery.data && getCombatantsQuery.data.combatants.length > 0 ? getCombatantsQuery.data?.combatants.map((x, i) => <CombatantCard id={i.toString()} title={x.name} text="" />)
+                { getCombatantsQuery.data && getCombatantsQuery.data.combatants.length > 0 ? getCombatantsQuery.data?.combatants.map((x, i) => <CombatantCard id={i.toString()} title={x.name} text="" src={x.isFemale ? '/combatant_woman.jpeg' : undefined} />)
                     : <div>Begin adding combatants</div>}
             </Row>
         </>

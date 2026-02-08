@@ -2,10 +2,11 @@ namespace polemos_api.Types;
 
 public class Combatant
 {
-    public Combatant(int id, string name)
+    public Combatant(int id, string name, bool isFemale)
     {
         Id = id;
         Name = name;
+        IsFemale = isFemale;
     }
 
     [ID]
@@ -14,4 +15,7 @@ public class Combatant
 
     [GraphQLDescription("The name of the combatant")]
     public string Name { get; set; }
+
+    [GraphQLDescription("The gender of the combatant")]
+    public bool IsFemale { get; set; }
 }

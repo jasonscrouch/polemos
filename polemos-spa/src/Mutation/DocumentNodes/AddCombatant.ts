@@ -9,6 +9,7 @@ export const ADD_COMBATANT: TypedDocumentNode<AddCombatantMutation, AddCombatant
                 combatant {
                     id
                     name
+                    isFemale
                 }
             }
         }

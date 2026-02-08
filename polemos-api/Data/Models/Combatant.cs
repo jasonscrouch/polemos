@@ -5,6 +5,7 @@ public class Combatant
     public int Combatant_SK { get; set; }
     public int User_SK { get; set; }
     public string Name { get; set; }
+    public bool IsFemale { get; set; }
     public int Strength { get; set; }
     public int Dexterity { get; set; }
     public int HitPoints { get; set; }

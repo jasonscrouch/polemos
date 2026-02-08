@@ -20,7 +20,7 @@ public class Query
     {
         var combatants = await combatantRepository.ListAsync(new CombatantsByUserSpecification(id));
 
-        return combatants.Select(x => new Combatant(x.Combatant_SK, x.Name));
+        return combatants.Select(x => new Combatant(x.Combatant_SK, x.Name, x.IsFemale));
     }
 
     [GraphQLDescription("Determines whether or not the username and password combination is valid")]

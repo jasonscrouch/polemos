@@ -6,6 +6,7 @@ export const GET_COMBATANTS: TypedDocumentNode<GetCombatantsQuery, GetCombatants
         combatants(id: $combatantsId) {
             id
             name
+            isFemale
         }
     }
 `;

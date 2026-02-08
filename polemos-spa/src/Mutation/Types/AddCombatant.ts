@@ -4,6 +4,7 @@ export type AddCombatantMutationVariables = {
     input: {
         userId: number;
         name: string;
+        isFemale: boolean;
     }
 }
 

@@ -1,4 +1,5 @@
 export type Combatant = {
         id: string;
-        name: string
+        name: string;
+        isFemale: boolean;
     };

@@ -9,9 +9,13 @@ public class AddCombatantInput
     [GraphQLDescription("The combatant's name")]
     public string Name { get; set; }
 
-    public AddCombatantInput(int userId, string name)
+    [GraphQLDescription("The combatant's gender")]
+    public bool IsFemale { get; set; }
+
+    public AddCombatantInput(int userId, string name, bool isFemale)
     {
         UserId = userId;
         Name = name;
+        IsFemale = isFemale;
     }
 }

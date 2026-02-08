@@ -40,12 +40,12 @@ public class Mutation
 
             //todo: if there is a user, then we need to associate that user with the combatant.
             //Otherwise, we can create it locally but not save it to the datebse
-            var combatant = combatantService.Create(input.UserId, input.Name);
+            var combatant = combatantService.Create(input.UserId, input.Name, input.IsFemale);
 
             combatantRepository.Add(combatant);
             await combatantRepository.SaveChangesAsync();
 
-            return new AddCombatantPayload(StatusCodes.Status200OK, true, "Combatant added", new Combatant(combatant.Combatant_SK, combatant.Name));
+            return new AddCombatantPayload(StatusCodes.Status200OK, true, "Combatant added", new Combatant(combatant.Combatant_SK, combatant.Name, combatant.IsFemale));
 
             // todo: finish this so that we can create combatants
             // todo: see polemos for UI around checking whether a combatant name already exists
