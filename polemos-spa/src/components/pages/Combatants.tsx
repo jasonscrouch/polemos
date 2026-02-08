@@ -1,6 +1,6 @@
 import { useContext, useState, type JSX } from "react";
 import { AuthnContext } from "../../contexts/AuthnContext";
-import { Alert, Button, Col, Collapse, Form, Row } from "react-bootstrap";
+import { Alert, Button, Col, Form, Offcanvas, Row } from "react-bootstrap";
 import FormInput from "../helpers/FormInput";
 import SubmitButton from "../helpers/SubmitButton";
 import { useMutation, useQuery } from "@apollo/client/react";
@@ -8,10 +8,8 @@ import { Error } from "../helpers/Error";
 import { BrandText } from "../../utilities/css/Text";
 import { ADD_COMBATANT } from "../../Mutation/DocumentNodes/AddCombatant";
 import { GET_COMBATANTS } from "../../Query/DocumentNodes/GetCombatants";
+import { CombatantCard } from "../helpers/CombatantCard";
 
-// todo: use this to test an authn user
-
-//todo: Overall, there will be a a title, add button, and a list of cards.
 // Clicking on each will bring up a modal with more details about each.
 // The modal allows you to move left and right through the cards.
 // There is a search at the top, which will highlight text in each card that matches the search.
@@ -20,12 +18,17 @@ export default function Combatants(): JSX.Element {
 
     const authnContext = useContext(AuthnContext);
     const [isValidated, setIsValidated] = useState<boolean>(false);
-    const [open, setOpen] = useState<boolean>(false);
+    const [showOffCanvas, setShowOffCanvas] = useState<boolean>(false);
 
     const name = "name";
         
     const [ addCombatantMutation, addCombatantResult ] = useMutation(ADD_COMBATANT);
     const getCombatantsQuery = useQuery(GET_COMBATANTS, { variables: { combatantsId: authnContext.authnUser?.id ?? 0 } });
+
+    function handleClose() {
+        setShowOffCanvas(false);
+        setIsValidated(false);
+    }
 
     function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -57,54 +60,35 @@ export default function Combatants(): JSX.Element {
                 
                 if (result.data?.addCombatant.success) {
                     getCombatantsQuery.refetch();
+                    handleClose();
                 }
             });
     }
 
-    //todo: create own file
     // todo: onClick, open modal with left and right slide to go through all combatants
-    function createCombatantCard(id: string, title: string, text: string): JSX.Element {
 
-        return (
-            <div key={id} className="card" style={ { width: '18rem' }}>
-                <img src="..." className="card-img-top" alt="..." />
-                <div className="card-body">
-                    <h5 className="card-title">{title}</h5>
-                    <p className="card-text">{text}</p>
-                </div>
-                <div className="card-body">
-                    <a href="#" className="card-link">Details</a>
-                </div>
-            </div>
-        );
-    }
-
-    //todo: create this page
-    // way to create a combatant
-    // name
-    // auto-create the other elements
-    // auto add image (perhaps based on str or dex)
-    // show list of created combatants
+    // todo: create image custom image creation endpoint (based on attributes like STR)
     // support localStorage creation for users who are not signed in
-
 
     //todo: center title, create add functionality that pulls down to reveal form, and "start creating combatants" if none
 
-    //todo: these alerts are styled the same. Create an alert wrapper for this.
     return (
         <>
             <div className={BrandText("mb-1")}>Combatants</div> 
             <div>
                 <Button
-                    onClick={() => setOpen(!open)}
-                    aria-controls="example-collapse-text"
-                    aria-expanded={open}
+                    onClick={() => setShowOffCanvas(!showOffCanvas)}
                     title="Add"
                 >
                     Add
                 </Button>
-                <Collapse in={open}>
-                    <div id="example-collapse-text">
+                <Offcanvas
+                    show={showOffCanvas}
+                    onHide={() => handleClose()}
+                    placement="start"
+                    >
+                    <Offcanvas.Header closeButton><div className={BrandText()}>Combatants</div></Offcanvas.Header>
+                    <Offcanvas.Body>
                         <Form className="needs-validation" validated={isValidated} noValidate onSubmit={(e) => handleSubmit(e)}> 
                             <Row className="g-3"> 
                                 <Col lg="12"> 
@@ -115,8 +99,8 @@ export default function Combatants(): JSX.Element {
                                 </Col>
                             </Row>
                         </Form>
-                    </div>
-                </Collapse>
+                    </Offcanvas.Body>
+                </Offcanvas>
             </div>
             <Alert variant="info" show={authnContext.authnUser === undefined} className="d-flex flex-column text-center">
                 <Alert.Heading>You're not signed in!</Alert.Heading>
@@ -128,7 +112,7 @@ export default function Combatants(): JSX.Element {
             {getCombatantsQuery.error != null 
                 && <Error show={addCombatantResult.error != null} message={getCombatantsQuery.error.message} /> }
             <Row>
-                { getCombatantsQuery.data && getCombatantsQuery.data.combatants.length > 0 ? getCombatantsQuery.data?.combatants.map((x, i) => createCombatantCard(i.toString(), x.name, ""))
+                { getCombatantsQuery.data && getCombatantsQuery.data.combatants.length > 0 ? getCombatantsQuery.data?.combatants.map((x, i) => <CombatantCard id={i.toString()} title={x.name} text="" />)
                     : <div>Begin adding combatants</div>}
             </Row>
         </>
