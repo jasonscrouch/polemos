@@ -96,7 +96,7 @@ export default function Combatants(): JSX.Element {
             {getCombatantsQuery.error != null 
                 && <Error show={addCombatantResult.error != null} message={getCombatantsQuery.error.message} /> }
             <Row xs={2} md={3} className="g-2 mb-2">
-                { getCombatantsQuery.data && getCombatantsQuery.data.combatants.length > 0 && getCombatantsQuery.data?.combatants.map((x, i) => <CombatantCard title={x.name} text="" isFemale={x.isFemale} />)}
+                { getCombatantsQuery.data && getCombatantsQuery.data.combatants.length > 0 && getCombatantsQuery.data?.combatants.map((x, i) => <Col key={i}><CombatantCard title={x.name} text="" isFemale={x.isFemale} /></Col>)}
             </Row>
             {/* <Row xs={2} md={3} className="g-2 mb-2">
                 { [{name: 't1' }, { name: 'Lenora', isFemale: true}, { name: 't3', isFemale: true}, { name: 't2', isFemale: true}, { name: 't2', isFemale: false}].map((x, i) => <Col key={i}><CombatantCard title={x.name} text="" isFemale={x.isFemale} /></Col>)}
