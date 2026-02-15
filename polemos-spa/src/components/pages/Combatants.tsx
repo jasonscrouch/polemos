@@ -9,7 +9,7 @@ import { BrandText } from "../../utilities/css/Text";
 import { ADD_COMBATANT } from "../../Mutation/DocumentNodes/AddCombatant";
 import { GET_COMBATANTS } from "../../Query/DocumentNodes/GetCombatants";
 import { CombatantCard } from "../helpers/CombatantCard";
-import { getFormDataOrDefault } from "../../utilities/FormData";
+import { useFormDataParser } from "../../utilities/FormData";
 
 // Clicking on each will bring up a modal with more details about each.
 // The modal allows you to move left and right through the cards.
@@ -42,14 +42,10 @@ export default function Combatants(): JSX.Element {
             return;
         }
 
-        // todo: create formData utility that returns '' if null or undefined
-        const formData = new FormData(form);
-        const formName = getFormDataOrDefault(formData, name);
-        const formIsFemale = getFormDataOrDefault(formData, 'isFemale') === 'on' ? true 
+        const parser = useFormDataParser(form);
+        const formName = parser.getOrDefault(name);
+        const formIsFemale = parser.getOrDefault('isFemale') === 'on' ? true 
             : false;
-
-        //todo
-        console.log(`Is Female is '${formIsFemale}'`);
 
         if (!formName) {
             return;
@@ -79,7 +75,7 @@ export default function Combatants(): JSX.Element {
     //todo: center title, create add functionality that pulls down to reveal form, and "start creating combatants" if none
 
     return (
-        <>
+        <div className="text-center">
             <div className={BrandText("mb-1")}>Combatants</div> 
             <div>
                 <Button
@@ -88,34 +84,8 @@ export default function Combatants(): JSX.Element {
                 >
                     Add
                 </Button>
-                <Offcanvas
-                    show={showOffCanvas}
-                    onHide={() => handleClose()}
-                    placement="start"
-                    >
-                    <Offcanvas.Header closeButton><div className={BrandText()}>Combatants</div></Offcanvas.Header>
-                    <Offcanvas.Body>
-                        <Form className="needs-validation" validated={isValidated} noValidate onSubmit={(e) => handleSubmit(e)}> 
-                            <Row className="g-3"> 
-                                <Col lg="12"> 
-                                        <FormInput label="Name" name="name" type="text" isRequired={true} invalidMessage="Please enter a name" shouldAutoFocus={true} />
-                                            <Form.Group className="mt-2">
-                                                <Form.Check
-                                                type="switch"
-                                                id="isFemale"
-                                                name="isFemale"
-                                                label="Is Female"
-                                            />
-                                        </Form.Group>
-                                </Col>
-                                <Col>
-                                    <SubmitButton text="Create" variant="primary" isLoading={addCombatantResult.loading} />
-                                </Col>
-                            </Row>
-                        </Form>
-                    </Offcanvas.Body>
-                </Offcanvas>
             </div>
+            { !getCombatantsQuery.data && <div>Begin adding combatants</div>}
             <Alert variant="info" show={authnContext.authnUser === undefined} className="d-flex flex-column text-center">
                 <Alert.Heading>You're not signed in!</Alert.Heading>
                 <p>We'll keep your data locally.</p>
@@ -125,10 +95,39 @@ export default function Combatants(): JSX.Element {
                 && <Error show={addCombatantResult.error != null} message={addCombatantResult.error.message} /> }
             {getCombatantsQuery.error != null 
                 && <Error show={addCombatantResult.error != null} message={getCombatantsQuery.error.message} /> }
-            <Row>
-                { getCombatantsQuery.data && getCombatantsQuery.data.combatants.length > 0 ? getCombatantsQuery.data?.combatants.map((x, i) => <CombatantCard id={i.toString()} title={x.name} text="" src={x.isFemale ? '/combatant_woman.jpeg' : undefined} />)
-                    : <div>Begin adding combatants</div>}
+            <Row xs={2} md={3} className="g-2 mb-2">
+                { getCombatantsQuery.data && getCombatantsQuery.data.combatants.length > 0 && getCombatantsQuery.data?.combatants.map((x, i) => <CombatantCard title={x.name} text="" isFemale={x.isFemale} />)}
             </Row>
-        </>
+            {/* <Row xs={2} md={3} className="g-2 mb-2">
+                { [{name: 't1' }, { name: 'Lenora', isFemale: true}, { name: 't3', isFemale: true}, { name: 't2', isFemale: true}, { name: 't2', isFemale: false}].map((x, i) => <Col key={i}><CombatantCard title={x.name} text="" isFemale={x.isFemale} /></Col>)}
+            </Row> */}
+            <Offcanvas
+                show={showOffCanvas}
+                onHide={() => handleClose()}
+                placement="start"
+            >
+                <Offcanvas.Header closeButton><div className={BrandText()}>Combatants</div></Offcanvas.Header>
+                <Offcanvas.Body>
+                    <Form className="needs-validation" validated={isValidated} noValidate onSubmit={(e) => handleSubmit(e)}> 
+                        <Row className="g-3"> 
+                            <Col lg="12"> 
+                                    <FormInput label="Name" name="name" type="text" isRequired={true} invalidMessage="Please enter a name" shouldAutoFocus={true} />
+                                        <Form.Group className="mt-2">
+                                            <Form.Check
+                                            type="switch"
+                                            id="isFemale"
+                                            name="isFemale"
+                                            label="Is Female"
+                                        />
+                                    </Form.Group>
+                            </Col>
+                            <Col>
+                                <SubmitButton text="Create" variant="primary" isLoading={addCombatantResult.loading} />
+                            </Col>
+                        </Row>
+                    </Form>
+                </Offcanvas.Body>
+            </Offcanvas>
+        </div>
     );
 }
