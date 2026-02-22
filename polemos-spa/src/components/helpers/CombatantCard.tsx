@@ -4,10 +4,11 @@ import { Button, Card } from "react-bootstrap";
 interface Props {
     title: string;
     text: string;
+    onDetailsClick: () => void;
     isFemale?: boolean;
 }
 
-export function CombatantCard({title, text, isFemale}: Props): JSX.Element {
+export function CombatantCard({title, text, onDetailsClick, isFemale}: Props): JSX.Element {
 
     return (
         <Card style={{width: '18rem'}}>
@@ -20,7 +21,7 @@ export function CombatantCard({title, text, isFemale}: Props): JSX.Element {
             <Card.Body>
                 <Card.Title>{title}</Card.Title>
                 <Card.Text>{text}</Card.Text>
-                <Button variant="outline-secondary">Details</Button>
+                <Button variant="outline-secondary" onClick={onDetailsClick}>Details</Button>
             </Card.Body>
         </Card>
   );

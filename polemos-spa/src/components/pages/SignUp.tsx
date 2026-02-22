@@ -4,7 +4,7 @@ import { useContext, useState } from "react";
 import { Alert, Col, Container, Form, Image, Row } from "react-bootstrap";
 import { useNavigate } from "react-router";
 import { AuthnContext } from "../../contexts/AuthnContext";
-import FormInput from "../helpers/FormInput";
+import { FormInput } from "../helpers/FormInput";
 import SubmitButton from "../helpers/SubmitButton";
 import type { AddUserMutation, AddUserMutationVariables } from "../../Mutation/Types/AddUser";
 
@@ -98,13 +98,13 @@ export default function SignUp() {
             <Form className="needs-validation" validated={isValidated} noValidate onSubmit={(e) => handleSubmit(e)}> 
                 <Row className="g-3"> 
                     <Col lg="12"> 
-                        <FormInput label="Username" name={username} type="text" isRequired={true} invalidMessage="Please enter a username" shouldAutoFocus={true} />
+                        <FormInput label="Username" name={username} invalidMessage="Please enter a username" shouldAutoFocus={true} />
                     </Col>
                     <Col lg="12"> 
-                        <FormInput label="Email" name={email} type="email" isRequired={true} invalidMessage="Please enter a valid email" shouldAutoFocus={false} />
+                        <FormInput label="Email" name={email} type="email" invalidMessage="Please enter a valid email" />
                     </Col>
                     <Col lg="12">
-                        <FormInput label="Password" name={password} type="password" isRequired={true} invalidMessage="Please enter a password" shouldAutoFocus={false} />
+                        <FormInput label="Password" name={password} type="password" invalidMessage="Please enter a password" />
                     </Col>
                     <Col>
                         <SubmitButton text="Sign Up" variant="success" isLoading={loading} />

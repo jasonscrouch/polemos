@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { useContext, useState, type JSX } from "react";
 import { AuthnContext } from "../../contexts/AuthnContext";
 import { useLazyQuery } from "@apollo/client/react";
-import FormInput from "../helpers/FormInput";
+import { FormInput } from "../helpers/FormInput";
 import SubmitButton from "../helpers/SubmitButton";
 import { GET_IS_PASSWORD_VALID } from "../../Query/DocumentNodes/GetIsPasswordValid";
 import { GET_USER } from "../../Query/DocumentNodes/GetUser";
@@ -73,10 +73,10 @@ export default function SignIn(): JSX.Element {
             <Form className="needs-validation" validated={isValidated} noValidate onSubmit={(e) => handleSubmit(e)}> 
                 <Row className="g-3"> 
                     <Col lg="12"> 
-                        <FormInput label="Username" name={username} type="text" isRequired={true} invalidMessage="Please enter a username" shouldAutoFocus={true} />
+                        <FormInput label="Username" name={username} invalidMessage="Please enter a username" shouldAutoFocus={true} />
                     </Col>
                     <Col lg="12">
-                        <FormInput label="Password" name={password} type="password" isRequired={true} invalidMessage="Please enter a password" shouldAutoFocus={false} />
+                        <FormInput label="Password" name={password} type="password" invalidMessage="Please enter a password" />
                     </Col>
                     <Col>
                         <SubmitButton text="Sign In" variant="primary" isLoading={loading} />

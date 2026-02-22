@@ -5,16 +5,16 @@ import { BrandText } from '../../utilities/css/Text';
 import { Alert } from 'react-bootstrap';
 
 interface Props {
-    show: boolean;
+    isShown: boolean;
     message: string;
 }
 
 //todo: hook up help support to send error report
 //todo: add this to every place an error could be
 
-export function Error({ show, message }: Props) {
+export function Error({ isShown, message }: Props) {
 
-    const [showModal, setShowModal] = React.useState(show);
+    const [showModal, setShowModal] = React.useState(isShown);
     
     const body = `Attention Polemos, \n\n I received the following error message: \n '${message}'. \n\n Thank you for your help, \n\n`;
 

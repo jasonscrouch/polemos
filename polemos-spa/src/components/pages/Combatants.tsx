@@ -1,7 +1,7 @@
 import { useContext, useState, type JSX } from "react";
 import { AuthnContext } from "../../contexts/AuthnContext";
-import { Alert, Button, Col, Form, Offcanvas, Row } from "react-bootstrap";
-import FormInput from "../helpers/FormInput";
+import { Alert, Button, Col, Form, Modal, Offcanvas, Row } from "react-bootstrap";
+import { HorizontalFormInput } from "../helpers/FormInput";
 import SubmitButton from "../helpers/SubmitButton";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { Error } from "../helpers/Error";
@@ -15,15 +15,42 @@ import { useFormDataParser } from "../../utilities/FormData";
 // The modal allows you to move left and right through the cards.
 // There is a search at the top, which will highlight text in each card that matches the search.
 
+interface SelectionModal_Props {
+    isShown: boolean;
+    onHide: () => void;
+}
+
+//todo: add next and back buttons so that users can go through all of their combatants with the same modal
+function SelectionModal({isShown, onHide}: SelectionModal_Props) {
+  return (
+      <Modal 
+        show={isShown} 
+        onHide={onHide}
+        >
+        <Modal.Header closeButton>
+          <Modal.Title className={BrandText()}>Details</Modal.Title>
+        </Modal.Header>
+        <Modal.Body>
+            details here
+        </Modal.Body>
+        <Modal.Footer>
+            footer here
+        </Modal.Footer>
+      </Modal>
+  );
+}
+
 export default function Combatants(): JSX.Element {
 
     const authnContext = useContext(AuthnContext);
     const [isValidated, setIsValidated] = useState<boolean>(false);
     const [showOffCanvas, setShowOffCanvas] = useState<boolean>(false);
+    const [showDetails, setShowDetails] = useState<boolean>(false);
 
     const name = "name";
         
     const [ addCombatantMutation, addCombatantResult ] = useMutation(ADD_COMBATANT);
+    //todo: update this to userId, not combatantsId and/or allow a get for combatants by id
     const getCombatantsQuery = useQuery(GET_COMBATANTS, { variables: { combatantsId: authnContext.authnUser?.id ?? 0 } });
 
     function handleClose() {
@@ -74,6 +101,7 @@ export default function Combatants(): JSX.Element {
 
     //todo: center title, create add functionality that pulls down to reveal form, and "start creating combatants" if none
 
+    //todo: thin out the bottom offcanvas to reduce unused space
     return (
         <div className="text-center">
             <div className={BrandText("mb-1")}>Combatants</div> 
@@ -92,34 +120,36 @@ export default function Combatants(): JSX.Element {
                 <p>But we can't guarantee that you won't lose it.</p>
             </Alert>
             {addCombatantResult.error != null 
-                && <Error show={addCombatantResult.error != null} message={addCombatantResult.error.message} /> }
+                && <Error isShown={addCombatantResult.error != null} message={addCombatantResult.error.message} /> }
             {getCombatantsQuery.error != null 
-                && <Error show={addCombatantResult.error != null} message={getCombatantsQuery.error.message} /> }
+                && <Error isShown={addCombatantResult.error != null} message={getCombatantsQuery.error.message} /> }
             <Row xs={2} md={3} className="g-2 mb-2">
-                { getCombatantsQuery.data && getCombatantsQuery.data.combatants.length > 0 && getCombatantsQuery.data?.combatants.map((x, i) => <Col key={i}><CombatantCard title={x.name} text="" isFemale={x.isFemale} /></Col>)}
+                { getCombatantsQuery.data && getCombatantsQuery.data.combatants.length > 0 && getCombatantsQuery.data?.combatants.map((x, i) => <Col key={i}><CombatantCard title={x.name} text="" isFemale={x.isFemale} onDetailsClick={() => setShowDetails(true)} /></Col>)}
             </Row>
-            {/* <Row xs={2} md={3} className="g-2 mb-2">
-                { [{name: 't1' }, { name: 'Lenora', isFemale: true}, { name: 't3', isFemale: true}, { name: 't2', isFemale: true}, { name: 't2', isFemale: false}].map((x, i) => <Col key={i}><CombatantCard title={x.name} text="" isFemale={x.isFemale} /></Col>)}
-            </Row> */}
+            <Row xs={2} md={3} className="g-2 mb-2">
+                { [{name: 't1' }, { name: 't2', isFemale: true}, { name: 't3', isFemale: true}, { name: 't4', isFemale: true}, { name: 't5', isFemale: false}].map((x, i) => <Col key={i}><CombatantCard title={x.name} text="" isFemale={x.isFemale} onDetailsClick={() => setShowDetails(true)} /></Col>)}
+            </Row>
             <Offcanvas
                 show={showOffCanvas}
                 onHide={() => handleClose()}
-                placement="start"
+                placement="top"
+                scroll={true}
             >
-                <Offcanvas.Header closeButton><div className={BrandText()}>Combatants</div></Offcanvas.Header>
+                <Offcanvas.Header closeButton><div className={BrandText()}>Add</div></Offcanvas.Header>
                 <Offcanvas.Body>
                     <Form className="needs-validation" validated={isValidated} noValidate onSubmit={(e) => handleSubmit(e)}> 
-                        <Row className="g-3"> 
-                            <Col lg="12"> 
-                                    <FormInput label="Name" name="name" type="text" isRequired={true} invalidMessage="Please enter a name" shouldAutoFocus={true} />
-                                        <Form.Group className="mt-2">
-                                            <Form.Check
-                                            type="switch"
-                                            id="isFemale"
-                                            name="isFemale"
-                                            label="Is Female"
-                                        />
-                                    </Form.Group>
+                        <Row className="align-items-center"> 
+                            <Col> 
+                                <HorizontalFormInput formInput={{label: "Name", name:"name", invalidMessage:"Please enter a name"}} />
+                            </Col>
+                            <Col>
+                                <Form.Group className="mt-2">
+                                    <Form.Switch
+                                        id="isFemale"
+                                        name="isFemale"
+                                        label="Is Female"
+                                    />
+                                </Form.Group>
                             </Col>
                             <Col>
                                 <SubmitButton text="Create" variant="primary" isLoading={addCombatantResult.loading} />
@@ -128,6 +158,7 @@ export default function Combatants(): JSX.Element {
                     </Form>
                 </Offcanvas.Body>
             </Offcanvas>
+            <SelectionModal isShown={showDetails} onHide={() => setShowDetails(false)} />
         </div>
     );
 }

@@ -1,22 +1,37 @@
 import type { JSX } from "react";
-import { Form } from "react-bootstrap";
+import { Col, Form, Row } from "react-bootstrap";
 
-interface Props {
+interface FormInput_Props {
     label: string;
     name: string;
-    type: "text" | "password" | "email";
-    isRequired: boolean;
     invalidMessage: string;
-    shouldAutoFocus: boolean;
+    type?: "text" | "password" | "email";
+    shouldAutoFocus?: boolean;
+    isDisabled?: boolean;
 }
 
-export default function FormInput({ label, name, type, isRequired, invalidMessage, shouldAutoFocus }: Props): JSX.Element {
-
+export function FormInput({ label, name, invalidMessage, type = 'text', shouldAutoFocus = false, isDisabled = false }: FormInput_Props): JSX.Element {
     return (
         <Form.Group>
             <Form.Label htmlFor={name}>{label}</Form.Label> 
-            <Form.Control type={type} id={name} name={name} required={isRequired} autoFocus={shouldAutoFocus}/> 
-            {isRequired && <Form.Control.Feedback className="invalid-feedback" type="invalid">{invalidMessage}</Form.Control.Feedback>}
+            <Form.Control type={type} id={name} name={name} required={true} autoFocus={shouldAutoFocus} disabled={isDisabled}/> 
+            <Form.Control.Feedback className="invalid-feedback" type="invalid">{invalidMessage}</Form.Control.Feedback>
         </Form.Group>
+    );
+}
+
+interface HorizontalFormInput_Props {
+    formInput: FormInput_Props
+}
+
+export function HorizontalFormInput({formInput}: HorizontalFormInput_Props) {
+    return (
+        <Row>
+            <Form.Label column sm='2' lg='2' htmlFor={formInput.name}>{formInput.label}</Form.Label> 
+            <Col>
+                <Form.Control type={formInput.type} id={formInput.name} name={formInput.name} required={true} autoFocus={formInput.shouldAutoFocus} disabled={formInput.isDisabled}/> 
+                <Form.Control.Feedback className="invalid-feedback" type="invalid">{formInput.invalidMessage}</Form.Control.Feedback>
+            </Col>
+        </Row>
     );
 }
