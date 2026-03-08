@@ -1,60 +1,71 @@
 import { useContext, useState, type JSX } from "react";
 import { AuthnContext } from "../../contexts/AuthnContext";
-import { Alert, Button, Col, Form, Modal, Offcanvas, Row } from "react-bootstrap";
-import { HorizontalFormInput } from "../helpers/FormInput";
+import { Alert, Button, Col, Form, Image, Row } from "react-bootstrap";
+import { FormInput } from "../helpers/FormInput";
 import SubmitButton from "../helpers/SubmitButton";
 import { useMutation, useQuery } from "@apollo/client/react";
 import { Error } from "../helpers/Error";
 import { BrandText } from "../../utilities/css/Text";
 import { ADD_COMBATANT } from "../../Mutation/DocumentNodes/AddCombatant";
 import { GET_COMBATANTS } from "../../Query/DocumentNodes/GetCombatants";
-import { CombatantCard } from "../helpers/CombatantCard";
 import { useFormDataParser } from "../../utilities/FormData";
+import ListGroup from 'react-bootstrap/ListGroup';
+import type { Combatant } from "../../types/Combatant";
 
-// Clicking on each will bring up a modal with more details about each.
-// The modal allows you to move left and right through the cards.
-// There is a search at the top, which will highlight text in each card that matches the search.
+//if no combatants, then show "Begin adding combatants"
+// if combatants, then show left List() with corresponding right form with details (Create or Update) and Cancel
 
-interface SelectionModal_Props {
-    isShown: boolean;
-    onHide: () => void;
+interface List_Props {
+    combatants: Combatant[];
+    onClick: (combatant: Combatant) => void
+    selected?: string;
 }
 
-//todo: add next and back buttons so that users can go through all of their combatants with the same modal
-function SelectionModal({isShown, onHide}: SelectionModal_Props) {
+function List({ combatants, onClick, selected }: List_Props) {
   return (
-      <Modal 
-        show={isShown} 
-        onHide={onHide}
-        >
-        <Modal.Header closeButton>
-          <Modal.Title className={BrandText()}>Details</Modal.Title>
-        </Modal.Header>
-        <Modal.Body>
-            details here
-        </Modal.Body>
-        <Modal.Footer>
-            footer here
-        </Modal.Footer>
-      </Modal>
+    <ListGroup>
+        {combatants.map(x => <ListGroup.Item key={x.id} action active={x.id === selected} onClick={() => onClick(x)}>{<Row><Image roundedCircle src={x.isFemale ? '/combatant_woman.jpeg' : '/default_Combatant.jpeg'} alt="Combatant" style={{height: 32, width: 32}} />{x.name}</Row>}</ListGroup.Item>)}
+    </ListGroup>
   );
+}
+
+interface Details_Props {
+    isValidated: boolean;
+    onSubmit: (e: React.FormEvent<HTMLFormElement>) => void;
+    isLoading: boolean;
+    combatant?: Combatant;
+}
+
+function Details({isValidated, combatant, onSubmit, isLoading}: Details_Props) {
+    return (
+        <Form className="needs-validation" validated={isValidated} noValidate onSubmit={onSubmit}> 
+            <FormInput label="Name" name="name" invalidMessage="Please enter a name" value={combatant?.name} />
+            <Form.Group className="mt-2">
+                <Form.Switch
+                    id="isFemale"
+                    name="isFemale"
+                    label="Is Female"
+                    checked={combatant?.isFemale}
+                />
+            </Form.Group>
+            <SubmitButton text="Create" variant="primary" isLoading={isLoading} />
+        </Form>
+    );
 }
 
 export default function Combatants(): JSX.Element {
 
     const authnContext = useContext(AuthnContext);
     const [isValidated, setIsValidated] = useState<boolean>(false);
-    const [showOffCanvas, setShowOffCanvas] = useState<boolean>(false);
-    const [showDetails, setShowDetails] = useState<boolean>(false);
+    const [selectedCombatant, setSelectedCombatant] = useState<Combatant>();
 
     const name = "name";
         
     const [ addCombatantMutation, addCombatantResult ] = useMutation(ADD_COMBATANT);
     //todo: update this to userId, not combatantsId and/or allow a get for combatants by id
-    const getCombatantsQuery = useQuery(GET_COMBATANTS, { variables: { combatantsId: authnContext.authnUser?.id ?? 0 } });
+    const getCombatantsQuery = useQuery(GET_COMBATANTS, { variables: { userId: authnContext.authnUser?.id ?? 0 } });
 
     function handleClose() {
-        setShowOffCanvas(false);
         setIsValidated(false);
     }
 
@@ -107,7 +118,8 @@ export default function Combatants(): JSX.Element {
             <div className={BrandText("mb-1")}>Combatants</div> 
             <div>
                 <Button
-                    onClick={() => setShowOffCanvas(!showOffCanvas)}
+                    // this will add a new item to the List()
+                    //onClick={() => }
                     title="Add"
                 >
                     Add
@@ -123,42 +135,28 @@ export default function Combatants(): JSX.Element {
                 && <Error isShown={addCombatantResult.error != null} message={addCombatantResult.error.message} /> }
             {getCombatantsQuery.error != null 
                 && <Error isShown={addCombatantResult.error != null} message={getCombatantsQuery.error.message} /> }
-            <Row xs={2} md={3} className="g-2 mb-2">
-                { getCombatantsQuery.data && getCombatantsQuery.data.combatants.length > 0 && getCombatantsQuery.data?.combatants.map((x, i) => <Col key={i}><CombatantCard title={x.name} text="" isFemale={x.isFemale} onDetailsClick={() => setShowDetails(true)} /></Col>)}
+            <Row>
+                <Col xs={2} md={3} className="g-2 mb-2">
+                {/* { getCombatantsQuery.data 
+                    && getCombatantsQuery.data.combatants
+                    && getCombatantsQuery.data.combatants.length > 0 
+                    && <List combatants={getCombatantsQuery.data?.combatants} />
+                } */}
+                    <List 
+                        combatants={[{id: '1', name: 't1', isFemale: false }, { id: '2', name: 't2', isFemale: true}, { id: '3', name: 't3', isFemale: true}, { id: '4', name: 't4', isFemale: true}, { id: '5', name: 't5', isFemale: false}]} 
+                        onClick={(x) => setSelectedCombatant(x)}
+                        selected={selectedCombatant?.id}
+                    />
+                </Col>
+                <Col>
+                    <Details 
+                        isValidated={isValidated} 
+                        onSubmit={(e) => handleSubmit(e)} 
+                        combatant={selectedCombatant}
+                        isLoading={addCombatantResult.loading} 
+                    />
+                </Col>
             </Row>
-            <Row xs={2} md={3} className="g-2 mb-2">
-                { [{name: 't1' }, { name: 't2', isFemale: true}, { name: 't3', isFemale: true}, { name: 't4', isFemale: true}, { name: 't5', isFemale: false}].map((x, i) => <Col key={i}><CombatantCard title={x.name} text="" isFemale={x.isFemale} onDetailsClick={() => setShowDetails(true)} /></Col>)}
-            </Row>
-            <Offcanvas
-                show={showOffCanvas}
-                onHide={() => handleClose()}
-                placement="top"
-                scroll={true}
-            >
-                <Offcanvas.Header closeButton><div className={BrandText()}>Add</div></Offcanvas.Header>
-                <Offcanvas.Body>
-                    <Form className="needs-validation" validated={isValidated} noValidate onSubmit={(e) => handleSubmit(e)}> 
-                        <Row className="align-items-center"> 
-                            <Col> 
-                                <HorizontalFormInput formInput={{label: "Name", name:"name", invalidMessage:"Please enter a name"}} />
-                            </Col>
-                            <Col>
-                                <Form.Group className="mt-2">
-                                    <Form.Switch
-                                        id="isFemale"
-                                        name="isFemale"
-                                        label="Is Female"
-                                    />
-                                </Form.Group>
-                            </Col>
-                            <Col>
-                                <SubmitButton text="Create" variant="primary" isLoading={addCombatantResult.loading} />
-                            </Col>
-                        </Row>
-                    </Form>
-                </Offcanvas.Body>
-            </Offcanvas>
-            <SelectionModal isShown={showDetails} onHide={() => setShowDetails(false)} />
         </div>
     );
 }

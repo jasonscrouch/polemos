@@ -5,5 +5,5 @@ export type GetCombatantsQuery = {
 }
 
 export type GetCombatantsVariables = {
-    combatantsId: number;
+    userId: number;
 }

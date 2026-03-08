@@ -8,14 +8,32 @@ interface FormInput_Props {
     type?: "text" | "password" | "email";
     shouldAutoFocus?: boolean;
     isDisabled?: boolean;
+    value?: string | number | string[];
 }
 
-export function FormInput({ label, name, invalidMessage, type = 'text', shouldAutoFocus = false, isDisabled = false }: FormInput_Props): JSX.Element {
+export function FormInput({ label, name, invalidMessage, type = 'text', shouldAutoFocus = false, isDisabled = false, value }: FormInput_Props): JSX.Element {
     return (
         <Form.Group>
-            <Form.Label htmlFor={name}>{label}</Form.Label> 
-            <Form.Control type={type} id={name} name={name} required={true} autoFocus={shouldAutoFocus} disabled={isDisabled}/> 
-            <Form.Control.Feedback className="invalid-feedback" type="invalid">{invalidMessage}</Form.Control.Feedback>
+            <Form.Label 
+                htmlFor={name}
+            >
+                {label}
+            </Form.Label> 
+            <Form.Control 
+                type={type} 
+                id={name} 
+                name={name} 
+                required={true} 
+                autoFocus={shouldAutoFocus} 
+                disabled={isDisabled}
+                value={value}
+            /> 
+            <Form.Control.Feedback 
+                className="invalid-feedback" 
+                type="invalid"
+            >
+                {invalidMessage}
+            </Form.Control.Feedback>
         </Form.Group>
     );
 }
